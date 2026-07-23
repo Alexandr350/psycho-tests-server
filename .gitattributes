@@ -1,0 +1,19 @@
+# Все текстовые файлы использовать с LF (Unix-style line endings)
+* text=auto
+
+# Java, XML, конфиги, скрипты — явно текстовые
+*.java text
+*.xml text
+*.properties text
+*.yml text
+*.yaml text
+*.md text
+*.gitignore text
+
+# Картинки, шрифты, иконки — бинарные (чтобы Git не пытался их сравнивать)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.svg binary
+*.ttf binary
+*.otf binary
