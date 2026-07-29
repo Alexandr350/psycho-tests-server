@@ -4,6 +4,7 @@ build/
 *.jar
 *.war
 *.ear
+*.env
 
 ### STS ###
 .apt_generated
