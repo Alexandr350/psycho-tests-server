@@ -36,15 +36,40 @@ public class Survey {
     
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "research_id_survey", unique = true, nullable = false)
-    private Research researchIdSurvey;
+    private Research research;
 
     @OneToMany(
-        mappedBy = "IDSurvey", 
+        mappedBy = "survey",
         cascade = {CascadeType.PERSIST, CascadeType.MERGE}, 
-        orphanRemoval = false, 
+        orphanRemoval = false,
         fetch = FetchType.LAZY)
-    private List<SurveySession> sessions = new ArrayList<>();
-    
+    private List<SurveySession> sessionsSurvey = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "survey",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<Characteristics> characteristicsSurvey = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "survey",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<Items> itemsSurvey = new ArrayList<>();
+
+    @OneToMany(
+        mappedBy = "survey",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
+    private List<ItemsSub> itemsSubsSurvey = new ArrayList<>();
+
+
     @Column(name = "title_survey", length = 150, nullable = false)
     private String titleSurvey;
 

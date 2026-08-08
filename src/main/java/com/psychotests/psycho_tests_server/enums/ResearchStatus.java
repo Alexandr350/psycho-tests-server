@@ -5,6 +5,6 @@ public enum ResearchStatus {
     NEW,
     RUNNING,
     PAUSE,
-    STOPED,
-    ARCHIV
+    STOPPED,
+    ARCHIVE
 }

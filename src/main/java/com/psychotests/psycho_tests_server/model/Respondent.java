@@ -1,14 +1,10 @@
 package com.psychotests.psycho_tests_server.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,9 +24,15 @@ public class Respondent {
     @Column(name = "id_respondent")
     private UUID IdRespondent;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "survey_session", unique = true, nullable = false)
-    private SurveySession surveySession;
+    @OneToMany(
+            mappedBy = "respondent",
+            orphanRemoval = false,
+            fetch = FetchType.LAZY
+    )
+    private List<SurveySession> surveySession = new ArrayList<>();
+
+    @OneToMany(mappedBy = "respondent", fetch = FetchType.LAZY)
+    private List<UniqueSurveyCode> surveyCodes = new ArrayList<>();
 
     @Column(name = "last_name_respondent", length = 50)
     private String lastNameRespondent;

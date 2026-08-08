@@ -1,6 +1,7 @@
 package com.psychotests.psycho_tests_server.model;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.psychotests.psycho_tests_server.enums.ResearchStatus;
@@ -12,6 +13,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 //Класс исследования (личный кабинет)
@@ -46,12 +50,16 @@ public class Research{
     @Column(name = "finish_time_research")
     private LocalDateTime finishTimeResearch;
 
-    @OneToOne(mappedBy = "researchIdSurvey", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "research", cascade = CascadeType.ALL, orphanRemoval = true)
     private Survey surveyResearch;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type_research", length = 10, nullable = false)
     private TypeResearch typeResearch;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "research", fetch = FetchType.LAZY)
+    private List<UniqueSurveyCode> uniqueSurveyCodes = new ArrayList<>();
 
     public Research(
         UUID IDResearch, 
