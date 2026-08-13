@@ -1,6 +1,5 @@
-package com.psychotests.psycho_tests_server.service_test;
+package com.psychotests.psycho_tests_server.service;
 
-import com.psychotests.psycho_tests_server.service.CPSK_Logic;
 import org.junit.jupiter.api.Test;
 
 public class CPSKTest {

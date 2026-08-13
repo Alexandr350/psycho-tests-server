@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.util.UUID;
 
+//Класс - ответы респондента - характеристики
 @Entity
 @Table(name = "answers_characteristics")
 @Setter

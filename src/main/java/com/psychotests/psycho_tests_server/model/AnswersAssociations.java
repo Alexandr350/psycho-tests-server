@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.util.UUID;
 
+//Класс - ответы респондента - ассоциации
 @Entity
 @Table(name = "answers_associations")
 @Setter

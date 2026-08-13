@@ -57,9 +57,12 @@ public class Research{
     @Column(name = "type_research", length = 10, nullable = false)
     private TypeResearch typeResearch;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "research", fetch = FetchType.LAZY)
     private List<UniqueSurveyCode> uniqueSurveyCodes = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "psychologist_account", nullable = false)
+    private PsychologistAccount psychologistAccount;
 
     public Research(
         UUID IDResearch, 

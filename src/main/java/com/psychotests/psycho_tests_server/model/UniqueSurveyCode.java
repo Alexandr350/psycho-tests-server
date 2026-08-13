@@ -6,6 +6,7 @@ import lombok.*;
 import java.time.Instant;
 import java.util.UUID;
 
+//Класс уникальных кодов
 @Entity
 @Table(name = "unique_survey_code")
 @Setter
@@ -23,8 +24,8 @@ public class UniqueSurveyCode {
     @Column(name = "code", unique = true, nullable = false)
     private String code;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_research", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_research")
     private Research research;
 
     @ManyToOne(fetch = FetchType.LAZY)
