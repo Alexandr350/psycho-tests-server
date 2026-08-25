@@ -1,4 +1,4 @@
-package com.psychotests.psycho_tests_server.dto;
+package com.psychotests.psycho_tests_server.dto.request;
 
 import jakarta.validation.constraints.*;
 

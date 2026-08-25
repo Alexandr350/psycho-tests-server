@@ -1,6 +1,6 @@
 package com.psychotests.psycho_tests_server.service;
 
-import com.psychotests.psycho_tests_server.dto.RegisteringPsychologicalAccountRequestDto;
+import com.psychotests.psycho_tests_server.dto.request.RegisteringPsychologicalAccountRequestDto;
 import com.psychotests.psycho_tests_server.exception.ConflictCreateAccountPsychologist;
 import com.psychotests.psycho_tests_server.model.PsychologistAccount;
 import com.psychotests.psycho_tests_server.repository.PsychologistAccountRepository;
@@ -8,26 +8,23 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import static com.psychotests.psycho_tests_server.service.Utility.createUUID;
 
 @Service
 @RequiredArgsConstructor
-public class RegistrationPsychologistAccountService {
+public class PsychologistAccountService {
 
     private final PsychologistAccountRepository psychologistAccountRepository;
     private final PasswordEncoder passwordEncoder;
 
-    private boolean isCheckEmail(String email){
-        return psychologistAccountRepository.findByEmail(email);
-    }
-
-    private UUID createUUID(){
-        return UUID.randomUUID();
-    }
 
     private String createHashPassword(String password){
         return passwordEncoder.encode(password);
     }
+    public boolean isCheckEmail(String email){
+        return psychologistAccountRepository.existsByEmailPsychologist(email);
+    }
+
 
     public PsychologistAccount createAccountPsychologist(RegisteringPsychologicalAccountRequestDto dto){
 

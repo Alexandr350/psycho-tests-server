@@ -1,4 +1,7 @@
 package com.psychotests.psycho_tests_server.dto.request;
 
-public record ResearchRequestSurveyDtoPart2() {
-}
+public record ResearchRequestSurveyDtoPart2(
+        String titleSurvey,
+        String descriptionSurvey,
+        String rulesSurvey
+) {}

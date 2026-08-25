@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="50%" height="50%">
+    <defs>
+        <linearGradient id="userGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#90e0ef" />
+            <stop offset="100%" stop-color="#90e0ef" />
+        </linearGradient>
+    </defs>
+
+    <!-- Голова (круг) -->
+    <circle cx="256" cy="165" r="105" fill="none" stroke="url(#userGradient)" stroke-width="36" />
+
+    <!-- Плечи (контур) -->
+    <path d="M 70 450 C 70 340, 140 290, 256 290 C 372 290, 442 340, 442 450" fill="none" stroke="url(#userGradient)" stroke-width="36" stroke-linecap="round" />
+</svg>

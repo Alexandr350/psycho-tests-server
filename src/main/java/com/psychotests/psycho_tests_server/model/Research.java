@@ -36,8 +36,11 @@ public class Research{
     @Column(name = "name_research", length = 100,  nullable = false)
     private String nameResearch;
 
-    @Column(name = "description_research", length = 1000, nullable = false)
+    @Column(name = "description_research", length = 1000)
     private String descriptionResearch;
+
+    @Column(name = "customer_research", length = 100)
+    private String customerResearch;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status_research" , length = 10, nullable = false)
@@ -68,12 +71,15 @@ public class Research{
         UUID IDResearch, 
         String nameResearch, 
         String descriptionResearch, 
+        String customerResearch,
         TypeResearch typeResearch){
             this.IDResearch = IDResearch;
             this.nameResearch = nameResearch;
             this.descriptionResearch = descriptionResearch;
-            this.statusResearch = ResearchStatus.DRAFT;
+            this.customerResearch = customerResearch;
             this.typeResearch = typeResearch;
+            this.statusResearch = ResearchStatus.DRAFT;
+
     }
 
 }

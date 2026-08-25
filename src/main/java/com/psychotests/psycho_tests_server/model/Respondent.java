@@ -40,10 +40,10 @@ public class Respondent {
     @Column(name = "name_respondent", length = 50)
     private String nameRespondent;
 
-    @Column(name = "age_respondent", nullable = false)
+    @Column(name = "age_respondent")
     private int ageRespondent;
 
-    @Column(name = "gender_respondent", nullable = false)
+    @Column(name = "gender_respondent")
     private char genderRespondent;
 
     public Respondent(UUID IdRespondent, int ageRespondent, char genderRespondent){

@@ -28,6 +28,12 @@ public class PsychologistAccount {
     @Column(name = "lastname_psychologist", length = 50, nullable = false)
     private String lastnamePsychologist;
 
+    @Column(name = "password_psychologist", length = 50, nullable = false)
+    private String passwordPsychologist;
+
+    @Column(name = "email_psychologist", length = 100, nullable = false)
+    private String emailPsychologist;
+
     @OneToMany(mappedBy = "psychologistAccount",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
@@ -35,9 +41,17 @@ public class PsychologistAccount {
     )
     private List<Research> researchList = new ArrayList<>();
 
-    public PsychologistAccount(UUID idPsychologistAccount, String namePsychologist, String lastnamePsychologist){
+    public PsychologistAccount(
+            UUID idPsychologistAccount,
+            String namePsychologist,
+            String lastnamePsychologist,
+            String passwordPsychologist,
+            String emailPsychologist
+    ){
         this.idPsychologistAccount = idPsychologistAccount;
         this.namePsychologist = namePsychologist;
         this.lastnamePsychologist = lastnamePsychologist;
+        this.passwordPsychologist = passwordPsychologist;
+        this.emailPsychologist = emailPsychologist;
     }
 }

@@ -12,7 +12,7 @@ public class PsychologistAccountRepositoryTest extends BaseRepositoryTest{
 
     @Test
     public void checkAddAndSearchByID(){
-        var psychologist = createPsychologist( "Алексей", "Иванов");
+        var psychologist = createPsychologist( "Алексей", "Иванов", "234erw$", "sdfsdf@uandex.ru");
 
         testEntityManager.persist(psychologist);
         testEntityManager.flush();
@@ -39,13 +39,13 @@ public class PsychologistAccountRepositoryTest extends BaseRepositoryTest{
 
     @Test
     public void checkAddResearchAndGetListResearch(){
-        var psychologist = createPsychologist("Иван" , "Николаев");
+        var psychologist = createPsychologist("Иван" , "Николаев", "ewrr32er#", "sdfe@yandex.ru");
 
-        var research_1 = createResearch("Исследование 1", "Описание 1");
+        var research_1 = createResearch("Исследование 1", "Описание 1", "ГТЛК");
         research_1.setPsychologistAccount(psychologist);
-        var research_2 = createResearch("Исследование 2", "Описание 2");
+        var research_2 = createResearch("Исследование 2", "Описание 2", "Институт");
         research_2.setPsychologistAccount(psychologist);
-        var research_3 = createResearch("Исследование 3", "Описание 3");
+        var research_3 = createResearch("Исследование 3", "Описание 3", "Офис");
         research_3.setPsychologistAccount(psychologist);
 
         linkResearchToPsychologist(psychologist, research_1, research_2, research_3);
@@ -84,11 +84,11 @@ public class PsychologistAccountRepositoryTest extends BaseRepositoryTest{
 
     @Test
     public void checkRemoveCascadeLink(){
-        var psychologist = createPsychologist("Сергей", "Кузнецов");
+        var psychologist = createPsychologist("Сергей", "Кузнецов", "fsdf43*", "sdfsdf@yamdex.ru");
 
-        var research_1 = createResearch("Исследование 1", "Описание 1");
-        var research_2 = createResearch("Исследование 2", "Описание 2");
-        var research_3 = createResearch("Исследование 3", "Описание 3");
+        var research_1 = createResearch("Исследование 1", "Описание 1", "");
+        var research_2 = createResearch("Исследование 2", "Описание 2", "");
+        var research_3 = createResearch("Исследование 3", "Описание 3", "");
 
         testEntityManager.persist(psychologist);
         linkResearchToPsychologist(psychologist, research_1, research_2, research_3);

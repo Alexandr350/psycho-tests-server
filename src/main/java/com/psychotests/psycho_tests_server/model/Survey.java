@@ -79,10 +79,12 @@ public class Survey {
     @Column(name = "rules_survey", length = 2000)
     private String rulesSurvey;
 
-    public Survey(UUID IDSurvey, String titleSurvey, String descriptionSurvey){
+    public Survey(UUID IDSurvey, String titleSurvey, String descriptionSurvey, String rulesSurvey){
+        this.IDSurvey = IDSurvey;
         this.titleSurvey = titleSurvey;
         this.descriptionSurvey = descriptionSurvey;
-        this.IDSurvey = IDSurvey;
+        this.rulesSurvey = rulesSurvey;
+
     }
 
 }

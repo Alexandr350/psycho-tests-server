@@ -2,26 +2,23 @@ package com.psychotests.psycho_tests_server.repository;
 
 import com.psychotests.psycho_tests_server.enums.ResearchStatus;
 import com.psychotests.psycho_tests_server.model.Research;
-import com.psychotests.psycho_tests_server.model.Survey;
 import org.junit.jupiter.api.Test;
-import org.springframework.dao.DataIntegrityViolationException;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 
 public class ResearchRepositoryTest extends BaseRepositoryTest{
 
     private Research dataTest(){
 
-        var psychologist = createPsychologist("Анна", "Петрова");
+        var psychologist = createPsychologist("Анна", "Петрова", "f34rdsf#", "");
         testEntityManager.persist(psychologist);
 
-        var research = createResearch("Исследование", "Описание");
+        var research = createResearch("Исследование", "Описание", "");
         linkResearchToPsychologist(psychologist, research);
         testEntityManager.persist(research);
 
-        var survey = createSurvey("Опрос", "Описание");
+        var survey = createSurvey("Опрос", "Описание", "");
         linkSurveyToResearch(research, survey);
         testEntityManager.persist(survey);
         testEntityManager.flush();
@@ -32,10 +29,10 @@ public class ResearchRepositoryTest extends BaseRepositoryTest{
 
     @Test
     public void checkCreateResearch(){
-        var psychologist = createPsychologist("Егор", "Иванов");
+        var psychologist = createPsychologist("Егор", "Иванов", "wer2r3r2#", "sdfsdf@sdf.com");
         psychologist = psychologistAccountRepository.save(psychologist);
 
-        var research = createResearch("Исследование", "Описание исследования");
+        var research = createResearch("Исследование", "Описание исследования", "erwe");
         research.setPsychologistAccount(psychologist);
 
         var saved = researchRepository.save(research);

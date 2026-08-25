@@ -25,19 +25,19 @@ public abstract class BaseRepositoryTest {
     @Autowired
     protected TestEntityManager testEntityManager;
 
-    protected PsychologistAccount createPsychologist(String name, String lastname){
+    protected PsychologistAccount createPsychologist(String name, String lastname, String password, String email){
         var id = UUID.randomUUID();
-        return new PsychologistAccount(id, name, lastname);
+        return new PsychologistAccount(id, name, lastname, password, email);
     }
 
-    protected Research createResearch(String title, String description){
+    protected Research createResearch(String title, String description, String customer){
         var id = UUID.randomUUID();
-        return new Research(id, title, description, TypeResearch.CPSK);
+        return new Research(id, title, description, customer, TypeResearch.CPSK);
     }
 
-    protected Survey createSurvey(String title, String description){
+    protected Survey createSurvey(String title, String description, String rule){
         var id = UUID.randomUUID();
-        return new Survey(id, title, description);
+        return new Survey(id, title, description, rule);
     }
 
     protected void linkResearchToPsychologist(PsychologistAccount psychologistAccount, Research... researches){

@@ -1,4 +1,4 @@
-package com.psychotests.psycho_tests_server.dto;
+package com.psychotests.psycho_tests_server.dto.response;
 
 import com.psychotests.psycho_tests_server.model.PsychologistAccount;
 

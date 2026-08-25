@@ -19,7 +19,7 @@ import static com.psychotests.psycho_tests_server.service.Utility.splitTokens;
 
 @Service
 @RequiredArgsConstructor
-public class ResearchService {
+public class CreateResearchService {
 
     private final ResearchRepository researchRepository;
     private final SurveyRepository surveyRepository;

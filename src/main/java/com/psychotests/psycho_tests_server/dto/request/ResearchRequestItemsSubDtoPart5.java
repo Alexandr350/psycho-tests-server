@@ -1,4 +1,6 @@
 package com.psychotests.psycho_tests_server.dto.request;
 
-public class ResearchRequestItemsSubDtoPart5 {
+import java.util.List;
+
+public record ResearchRequestItemsSubDtoPart5(List<String> itemSubPath) {
 }

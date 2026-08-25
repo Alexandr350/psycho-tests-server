@@ -1,6 +1,6 @@
-export function createFileUploadService(dropZone, fileInput, previewContainer){
+export function createFileUploadService(dropZone, fileInput, previewContainer, validation){
     let uploadedFiles = [];
-    const MAX_SIZE = 30 * 1024 * 1024;
+
    
     dropZone.addEventListener('click', (e) => {
         if (e.target.closest('.preview-container') 
@@ -19,34 +19,13 @@ export function createFileUploadService(dropZone, fileInput, previewContainer){
 
     });
 
-    function fileValidation(file) {
-
-        if(!file.type.startsWith('image/')){
-            showError(`Файл "${file.name}" не является изображением.`);
-            return false;
-        }
-
-        if (file.size > MAX_SIZE) {
-            showError(`Файл "${file.name}" слишком большой (не более ${MAX_SIZE / (1024 * 1024)} МБ).`);
-            return false;
-        }
-
-        const isDuplicate = uploadedFiles.some(f => f.file.name === file.name && f.file.size === file.size);
-        if (isDuplicate) {
-            showError(`Файл "${file.name}" уже добавлен.`);
-            return false;
-        }
-
-        return true;
-
-    }
 
     function addFiles(filesList) {
         const files = Array.from(filesList);
         let hasError = false;
 
         files.forEach(file => {
-            if (!fileValidation(file)) {
+            if (!validation.checkFile(file, uploadedFiles)) {
                 return;
             }
 
