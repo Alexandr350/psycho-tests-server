@@ -1,12 +1,16 @@
 package com.psychotests.psycho_tests_server.service;
 
+import com.psychotests.psycho_tests_server.dto.request.LoginPsychologicalAccountRequestDto;
 import com.psychotests.psycho_tests_server.dto.request.RegisteringPsychologicalAccountRequestDto;
+import com.psychotests.psycho_tests_server.exception.ConflictAuthorizationAccountPsychologist;
 import com.psychotests.psycho_tests_server.exception.ConflictCreateAccountPsychologist;
 import com.psychotests.psycho_tests_server.model.PsychologistAccount;
 import com.psychotests.psycho_tests_server.repository.PsychologistAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 import static com.psychotests.psycho_tests_server.service.Utility.createUUID;
 
@@ -41,6 +45,23 @@ public class PsychologistAccountService {
         );
 
         return psychologistAccountRepository.save(psychologist);
-
     }
+
+
+    public PsychologistAccount authorizationAccount(LoginPsychologicalAccountRequestDto dto){
+        Optional<PsychologistAccount> psychologistAccountOpt = psychologistAccountRepository.findByEmailPsychologist(dto.email());
+
+
+        if(psychologistAccountOpt.isEmpty()){
+            throw new ConflictAuthorizationAccountPsychologist("Аккаунта с таким email не существует");
+        }
+        PsychologistAccount psychologistAccount = psychologistAccountOpt.get();
+
+        if(!passwordEncoder.matches(dto.password(), psychologistAccount.getPasswordPsychologist())){
+            throw new ConflictAuthorizationAccountPsychologist("Неверный пароль");
+        }
+
+        return psychologistAccount;
+    }
+
 }

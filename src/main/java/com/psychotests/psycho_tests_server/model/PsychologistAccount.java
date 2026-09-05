@@ -28,7 +28,7 @@ public class PsychologistAccount {
     @Column(name = "lastname_psychologist", length = 50, nullable = false)
     private String lastnamePsychologist;
 
-    @Column(name = "password_psychologist", length = 50, nullable = false)
+    @Column(name = "password_psychologist", nullable = false)
     private String passwordPsychologist;
 
     @Column(name = "email_psychologist", length = 100, nullable = false)

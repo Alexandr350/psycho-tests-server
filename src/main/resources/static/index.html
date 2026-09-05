@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивное колесо</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="ResearchPage/js/CPSKAction.js" defer></script>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="circle-wrapper">
+        <svg viewBox="0 0 200 200">
+            <path class="sector" id="sector-1" fill="#e41e26" d="M 100 100 L 100 0 A 100 100 0 0 1 170.71 29.29 Z"
+                  data-info="1"/>
+            <path class="sector" id="sector-2" fill="#fbee23" d="M 100 100 L 170.71 29.29 A 100 100 0 0 1 200 100 Z"
+                  data-info="2"/>
+            <path class="sector" id="sector-3" fill="#009245" d="M 100 100 L 200 100 A 100 100 0 0 1 170.71 170.71 Z"
+                  data-info="3"/>
+            <path class="sector" id="sector-4" fill="#92278f" d="M 100 100 L 170.71 170.71 A 100 100 0 0 1 100 200 Z"
+                  data-info="4"/>
+            <path class="sector" id="sector-5" fill="#2e64b0" d="M 100 100 L 100 200 A 100 100 0 0 1 29.29 170.71 Z"
+                  data-info="5"/>
+            <path class="sector" id="sector-6" fill="#753b22" d="M 100 100 L 29.29 170.71 A 100 100 0 0 1 0 100 Z"
+                  data-info="6"/>
+            <path class="sector" id="sector-7" fill="#939598" d="M 100 100 L 0 100 A 100 100 0 0 1 29.29 29.29 Z"
+                  data-info="7"/>
+            <path class="sector" id="sector-8" fill="#000000" d="M 100 100 L 29.29 29.29 A 100 100 0 0 1 100 0 Z"
+                  data-info="8"/>
+
+            <text x="130" y="-10">I</text>
+            <text x="215" y="65">II</text>
+            <text x="215" y="145">III</text>
+            <text x="130" y="220">IV</text>
+            <text x="60" y="220">V</text>
+            <text x="-25" y="145">VI</text>
+            <text x="-30" y="65">VII</text>
+            <text x="50" y="-10">VIII</text>
+        </svg>
+    </div>
+
+    <div class="image-wrapper" id="image-container">
+
+        <div class="image-placeholder">Нажмите на любой сектор круга, чтобы отобразить изображение</div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -5,20 +5,21 @@ import jakarta.validation.constraints.*;
 public record RegisteringPsychologicalAccountRequestDto(
 
         @NotBlank(message = "Имя обязательно")
-        @Max(20)
+        @Size(max = 20, message = "Имя не должно превышать 20 символов")
         String namePsychologist,
 
         @NotBlank(message = "Фамилия обязательна")
-        @Max(50)
+        @Size(max = 50, message = "Фамилия не должна превышать 50 символов")
         String lastnamePsychologist,
 
         @NotBlank(message = "Пароль обязателен")
         @Size(min = 8, max = 50, message = "Пароль должен быть от 8 до 50 символов")
-        @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@$!%*?&])[A-Za-z0-9@$!%*?&]{8,}$",
-                message = "Пароль должен содержать буквы, цифры и спецсимволы (@$!%*?&), минимум 8 символов")
+        @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@$!%*?&\\\\-])[A-Za-z0-9@$!%*?&\\\\-]{8,50}$",
+                message = "Пароль должен содержать буквы, цифры и спецсимволы (@$!%*?&-), от 8 до 50 символов")
         String passwordPsychologist,
 
         @NotBlank(message = "Email обязателен")
-        @Email
+        @Email(message = "Некорректный формат Email")
+        @Size(max = 100, message = "Email не должен превышать 100 символов")
         String emailPsychologist
 ) { }

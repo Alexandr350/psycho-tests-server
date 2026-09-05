@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface PsychologistAccountRepository extends JpaRepository<PsychologistAccount, UUID> {
     boolean existsByEmailPsychologist(String email);
+    Optional<PsychologistAccount> findByEmailPsychologist(String email);
 }
