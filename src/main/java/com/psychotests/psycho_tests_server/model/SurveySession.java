@@ -71,7 +71,7 @@ public class SurveySession {
     private List<AnswersAssociations> answersAssociations = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status_survey_session", length = 10)
+    @Column(name = "status_survey_session", length = 15)
     private SurveySessionStatus statusSurveySession;
 
     @Column(name = "start_time_session", updatable = false, nullable = false)

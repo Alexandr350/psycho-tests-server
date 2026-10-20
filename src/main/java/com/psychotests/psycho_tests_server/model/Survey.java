@@ -19,7 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-//Класс опроса (Личный кабинет/Создание исcледования)
+//Класс опроса (Личный кабинет/Создание исследования)
 @Entity
 @Table(name = "survey")
 @Getter
@@ -40,8 +40,7 @@ public class Survey {
 
     @OneToMany(
         mappedBy = "survey",
-        cascade = {CascadeType.PERSIST, CascadeType.MERGE}, 
-        orphanRemoval = false,
+        cascade = {CascadeType.PERSIST, CascadeType.MERGE},
         fetch = FetchType.LAZY)
     private List<SurveySession> sessionsSurvey = new ArrayList<>();
 

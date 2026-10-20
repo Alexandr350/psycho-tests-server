@@ -42,4 +42,10 @@ public class Characteristics {
         this.textCharacteristic = textCharacteristic;
     }
 
+    public Characteristics(UUID idCharacteristic, Survey survey, String textCharacteristic) {
+        this.idCharacteristic = idCharacteristic;
+        this.survey = survey;
+        this.textCharacteristic = textCharacteristic;
+    }
+
 }

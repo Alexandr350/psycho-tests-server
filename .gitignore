@@ -17,6 +17,7 @@ build/
 
 application-local.properties
 application-dev.properties
+application-test.properties
 
 ### IntelliJ IDEA ###
 .idea/

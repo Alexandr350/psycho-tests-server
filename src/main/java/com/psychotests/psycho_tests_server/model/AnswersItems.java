@@ -3,6 +3,7 @@ package com.psychotests.psycho_tests_server.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -27,11 +28,16 @@ public class AnswersItems {
     @JoinColumn(name = "id_item", nullable = false)
     private Items item;
 
-    @Column(name = "number_sector")
+    @Column(name = "number_sector", nullable = false)
     private int numberSector;
 
-    public AnswersItems(UUID idAnswersItems, int numberSector){
-        this.idAnswersItems = idAnswersItems;
+    public AnswersItems(UUID idAnswersItems,
+                        SurveySession surveySession,
+                        Items item,
+                        int numberSector){
+        this.idAnswersItems = Objects.requireNonNull(idAnswersItems, "idAnswersItems must be set explicitly");
+        this.surveySession = Objects.requireNonNull(surveySession, "surveySession must be set explicitly");
+        this.item = Objects.requireNonNull(item, "item must be set explicitly");
         this.numberSector = numberSector;
     }
 

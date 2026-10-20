@@ -1,5 +1,6 @@
 package com.psychotests.psycho_tests_server.security;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -41,21 +42,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable) // на время разработки
-                /*.csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))*/
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                )
-
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/AuthorizationPage/**").permitAll()
                         .requestMatchers("/api/psychologists/register", "/api/psychologists/login").permitAll()
+                        .requestMatchers("/api/CPSKTest/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
-                        .anyRequest().permitAll()
-                );
+                        .anyRequest().permitAll())
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(
+                                (request, response, ex) ->
+                                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED)));
 
         return http.build();
     }

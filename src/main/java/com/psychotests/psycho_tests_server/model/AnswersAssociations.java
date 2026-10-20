@@ -3,6 +3,7 @@ package com.psychotests.psycho_tests_server.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Objects;
 import java.util.UUID;
 
 //Класс - ответы респондента - ассоциации
@@ -24,11 +25,25 @@ public class AnswersAssociations {
     @JoinColumn(name = "id_survey_session", nullable = false)
     private SurveySession surveySession;
 
-    @Column(name = "answer")
+    @Column(name = "answer", nullable = false, length = 500)
     private String answer;
 
-    @Column(name = "number_sector")
+    @Column(name = "number_sector", nullable = false)
     private int numberSector;
 
+    @Column(name = "association_order", nullable = false)
+    private int associationOrder;
+
+    public AnswersAssociations(UUID idAnswersAssociations,
+                               SurveySession surveySession,
+                               String answer,
+                               int numberSector,
+                               int associationOrder){
+        this.idAnswersAssociations = Objects.requireNonNull(idAnswersAssociations, "idAnswersAssociations must be set explicitly");
+        this.surveySession = Objects.requireNonNull(surveySession, "surveySession must be set explicitly");
+        this.answer = Objects.requireNonNull(answer, "answer must be set explicitly");
+        this.numberSector = numberSector;
+        this.associationOrder = associationOrder;
+    }
 
 }

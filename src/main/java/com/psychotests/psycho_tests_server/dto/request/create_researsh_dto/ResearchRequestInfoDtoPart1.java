@@ -1,4 +1,4 @@
-package com.psychotests.psycho_tests_server.dto.request;
+package com.psychotests.psycho_tests_server.dto.request.create_researsh_dto;
 
 import com.psychotests.psycho_tests_server.enums.TypeResearch;
 import jakarta.validation.constraints.NotBlank;

@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
 public interface SurveySessionRepository extends JpaRepository<SurveySession, UUID> {
+    boolean existsBySurveyIDSurvey(UUID surveyId);
 }

@@ -1,12 +1,9 @@
 package com.psychotests.psycho_tests_server.model;
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
-
 import com.psychotests.psycho_tests_server.enums.ResearchStatus;
 import com.psychotests.psycho_tests_server.enums.TypeResearch;
-
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -16,6 +13,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import java.util.UUID;
 
 //Класс исследования (личный кабинет)
@@ -46,8 +44,11 @@ public class Research{
     @Column(name = "status_research" , length = 10, nullable = false)
     private ResearchStatus statusResearch;
 
-    @Column(name = "start_time_research", updatable = false, nullable = false)
+    @Column(name = "created_at_research", updatable = false, nullable = false)
     @CreationTimestamp
+    private LocalDateTime createdAtResearch;
+
+    @Column(name = "start_time_research")
     private LocalDateTime startTimeResearch;
 
     @Column(name = "finish_time_research")
@@ -60,7 +61,7 @@ public class Research{
     @Column(name = "type_research", length = 10, nullable = false)
     private TypeResearch typeResearch;
 
-    @OneToMany(mappedBy = "research", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "research", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UniqueSurveyCode> uniqueSurveyCodes = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -81,5 +82,22 @@ public class Research{
             this.statusResearch = ResearchStatus.DRAFT;
 
     }
+
+    public void changeStatus(ResearchStatus newStatus) {
+        if (!statusResearch.canTransitionTo(newStatus)) {
+            throw new IllegalStateException(
+                    "Недопустимый переход статуса: " + statusResearch + " → " + newStatus);
+        }
+        this.statusResearch = newStatus;
+
+        if (newStatus == ResearchStatus.RUNNING && startTimeResearch == null) {
+            this.startTimeResearch = LocalDateTime.now();
+        }
+
+        if(newStatus == ResearchStatus.STOPPED){
+            this.finishTimeResearch = LocalDateTime.now();
+        }
+    }
+
 
 }

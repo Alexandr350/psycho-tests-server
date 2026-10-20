@@ -1,4 +1,4 @@
-package com.psychotests.psycho_tests_server.dto.response;
+package com.psychotests.psycho_tests_server.dto.response.research_dto;
 
 import com.psychotests.psycho_tests_server.enums.ResearchStatus;
 import com.psychotests.psycho_tests_server.enums.TypeResearch;

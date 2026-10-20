@@ -41,15 +41,13 @@ public class Respondent {
     private String nameRespondent;
 
     @Column(name = "age_respondent")
-    private int ageRespondent;
+    private Integer ageRespondent;
 
-    @Column(name = "gender_respondent")
-    private char genderRespondent;
+    @Column(name = "gender_respondent", length = 1)
+    private String genderRespondent;
 
-    public Respondent(UUID IdRespondent, int ageRespondent, char genderRespondent){
+    public Respondent(UUID IdRespondent){
         this.IdRespondent = IdRespondent;
-        this.ageRespondent = ageRespondent;
-        this.genderRespondent = genderRespondent;
     }
 
     

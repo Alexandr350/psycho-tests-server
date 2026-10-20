@@ -42,4 +42,10 @@ public class Items {
         this.urlItem = urlItem;
     }
 
+    public Items(UUID idIte, Survey survey, String urlItem) {
+        this.idItem = idIte;
+        this.survey = survey;
+        this.urlItem = urlItem;
+    }
+
 }

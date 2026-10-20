@@ -28,11 +28,16 @@ public class AnswersItemsSub {
     @JoinColumn(name = "id_items_sub", nullable = false)
     private ItemsSub itemsSub;
 
-    @Column(name = "number_sector")
+    @Column(name = "number_sector", nullable = false)
     private int numberSector;
 
-    public AnswersItemsSub(UUID idAnswersItemsSub, int numberSector){
+    public AnswersItemsSub(UUID idAnswersItemsSub,
+                           SurveySession surveySession,
+                           ItemsSub itemsSub,
+                           int numberSector){
         this.idAnswersItemsSub = idAnswersItemsSub;
+        this.surveySession = surveySession;
+        this.itemsSub = itemsSub;
         this.numberSector = numberSector;
     }
 

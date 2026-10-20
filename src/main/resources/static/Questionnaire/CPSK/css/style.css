@@ -1,0 +1,438 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+/* Двухколоночный макет */
+.main-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+    width: 90%;
+    max-width: 1500px;
+    min-height: 70vh;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Левая часть: Круг */
+.circle-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+svg {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    overflow: visible;
+}
+
+/* Стили секторов */
+.sector {
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    transform-origin: 100px 100px;
+    stroke: #fff;
+    stroke-width: 1.5px;
+}
+
+.sector:hover {
+    opacity: 0.85;
+    transform: scale(1.03);
+}
+
+/* Стили текста римских цифр */
+text {
+    font-weight: bold;
+    font-size: 12px;
+    fill: #333;
+    user-select: none;
+    pointer-events: none; /* Чтобы текст не мешал кликам */
+}
+
+/* Правая часть: Изображение */
+.image-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center;     
+    flex: 1;
+    align-self: stretch;
+    
+    box-sizing: border-box;
+    padding-left: 50px;
+    border-left: 2px solid #eee;
+}
+
+.display-image {
+    max-width: 100%;
+    max-height: 350px;
+    object-fit: contain;
+    border-radius: 8px;
+    transition: opacity 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  
+}
+
+.image-placeholder {
+    color: #888;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+/* Стили анкеты */
+/* Контейнер формы */
+.start-form-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;   
+    align-items: center;     
+    gap: 20px;
+    width: 100%;
+    height: 100%; 
+    margin: 0; 
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+/* Заголовок анкеты */
+.start-form-wrapper h3 {
+    margin: 0 0 10px 0;
+    text-align: center;
+    color: #333333;
+    font-size: 1.5rem;
+}
+
+/* Поля ввода и обертки */
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.form-field span {
+    font-weight: 500;
+    color: #555555;
+    font-size: 0.95rem;
+}
+
+/* Стили для input и select */
+.start-form-wrapper input[type="number"],
+.start-form-wrapper select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    font-size: 1rem;
+    color: #333333;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+/* Эффект при клике на поле (фокус) */
+.start-form-wrapper input[type="number"]:focus,
+.start-form-wrapper select:focus {
+    border-color: #007bff;
+    background-color: #ffffff;
+}
+
+/* Кнопка */
+#btn-start-test, #btn-begin-questions{
+    width: 40%;
+    padding: 14px;
+    margin: auto auto 0; 
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+/* Эффекты для кнопки */
+#btn-start-test:hover {
+    background-color: #0056b3; /* Затемнение при наведении */
+}
+
+#btn-start-test:active {
+    transform: scale(0.98); /* Легкий эффект нажатия */
+}
+
+/* Главный контейнер для экрана правил (теперь занимает 100% пространства родителя) */
+.test-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+    height: 100%;
+    margin: 0; /* Убрали авто-отступы, чтобы заполнить весь контейнер */
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 16px; /* Мягкие дружелюбные округлые углы */
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.test-progress {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #007bff; /* Акцентный синий цвет */
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: -10px; /* Сближает счетчик с основным вопросом */
+}
+
+/* Заголовок теста */
+.test-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-align: center;
+    color: #111111;
+    margin: 0;
+    line-height: 1.3;
+}
+
+/* Описание теста */
+.test-description {
+    font-size: 1.5rem;
+    line-height: 1.6;
+    color: #555555;
+    text-align: center;
+    margin: 0;
+}
+
+/* Блок с правилами (выделенная карточка с мягким цветным акцентом) */
+.test-rules {
+    box-sizing: border-box;
+    flex-grow: 1;
+    width: 100%;
+    padding: 20px 24px;
+    
+    border-radius: 12px;
+    font-size: 2rem;
+    color: #4a5568;
+}
+
+/* Заголовок правил внутри карточки */
+.test-rules h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0056b3;
+    margin: 0 0 10px 0;
+}
+
+/* Текст самих правил */
+.test-rules p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #333333;
+    margin: 0;
+    white-space: pre-line; /* Сохраняет переносы строк из базы данных */
+}
+
+
+.btn-primary {
+    width: 100%;
+    padding: 14px 20px;
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px; /* Дружелюбное скругление кнопки без острых углов */
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-sizing: border-box;
+    margin-top: auto; /* Прижимает кнопку к самому низу контейнера */
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+/* Эффекты при наведении на кнопку */
+.btn-primary:hover {
+    background-color: #0056b3;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+/* Эффект нажатия (микро-утапливание кнопки) */
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+.test-question-text {
+    box-sizing: border-box;
+    max-width: 90%;
+    word-wrap: break-word;
+    
+    font-family: "Times New Roman", Times, Georgia, serif;
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #1a1a1a;
+    text-align: center;
+    
+    animation: fadeInQuestion 0.4s ease;
+}
+
+/* Вспомогательная подсказка внизу (например: "Выберите подходящий сектор...") */
+.test-instruction-hint {
+    font-size: 1.05rem;
+    color: #6c757d;         /* Мягкий серый цвет */
+    text-align: center;
+    font-style: italic;
+}
+
+/* Плавная анимация смены текста для дружелюбного интерфейса */
+@keyframes fadeInQuestion {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Контейнер для картинки и вопроса */
+.image-question-wrapper {
+    display: flex;
+    flex-grow: 0;        /* Запрещает блоку увеличиваться и занимать лишнее место */
+    flex-shrink: 1;      /* Разрешает блоку сужаться, если экран станет слишком маленьким (для адаптивности) */
+    
+    box-sizing: border-box;
+    width: 100%;         /* Пытается занять всю ширину, но... */
+    max-width: 500px;    /* ...строго ограничивается этим жестким лимитом (задайте свои пиксели) */
+    overflow: hidden; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.image-question-wrapper img {
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    
+    object-fit: cover; /* Заполняет всю площадь, сохраняя пропорции (как background-size: cover) */
+    object-position: center; /* Центрирует изображение при обрезке лишних краев */
+}
+
+/* Мобильные экраны (до 480px) */
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+        min-height: 100vh;
+    }
+
+    /* Столбик вместо двух колонок */
+    .main-container {
+        flex-direction: column;
+        gap: 24px;
+        width: 100%;
+        padding: 20px 14px;
+        border-radius: 10px;
+    }
+
+    /* Разделительную линию между колонками убираем,
+       вместо неё — отступ сверху */
+    .image-wrapper {
+        padding-left: 0;
+        border-left: none;
+        border-top: 2px solid #eee;
+        padding-top: 20px;
+    }
+
+    /* Круг занимает всю ширину */
+    svg {
+        max-width: 280px;
+    }
+
+    /* Картинка не обрезается по высоте */
+    .display-image {
+        max-height: 220px;
+    }
+
+    /* Анкета и правила — компактнее */
+    .start-form-wrapper,
+    .test-container {
+        padding: 20px 14px;
+        gap: 14px;
+    }
+
+    .start-form-wrapper h3 {
+        font-size: 1.15rem;
+    }
+
+    .test-title {
+        font-size: 1.2rem;
+    }
+
+    .test-description {
+        font-size: 0.95rem;
+    }
+
+    .test-rules {
+        padding: 14px 16px;
+        font-size: 0.9rem;
+    }
+
+    /* Главный вопрос: 3rem на телефоне не влезает */
+    .test-question-text {
+        max-width: 100%;
+        font-size: 1.5rem;
+    }
+
+    .test-instruction-hint {
+        font-size: 0.85rem;
+    }
+
+    .test-progress {
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+    }
+
+    /* Кнопки — во всю ширину, удобнее попадать пальцем */
+    #btn-start-test,
+    #btn-begin-questions,
+    .btn-primary {
+        width: 100%;
+        padding: 14px;
+        font-size: 0.95rem;
+    }
+}
+
+.sector {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;           /* запрет выделения текста и элементов */
+    -webkit-user-select: none;   /* Safari */
+    -moz-user-select: none;      /* старый Firefox */
+    -ms-user-select: none;       /* старый IE/Edge */
+    -webkit-touch-callout: none; /* убирает системное меню «Копировать» при долгом тапе на iOS */
+    touch-action: manipulation;  /* убирает задержку двойного тапа и зум по двойному тапу */
+}

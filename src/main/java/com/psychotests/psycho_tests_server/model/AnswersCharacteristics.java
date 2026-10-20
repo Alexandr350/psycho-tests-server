@@ -3,6 +3,7 @@ package com.psychotests.psycho_tests_server.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Objects;
 import java.util.UUID;
 
 //Класс - ответы респондента - характеристики
@@ -28,11 +29,16 @@ public class AnswersCharacteristics {
     @JoinColumn(name = "id_characteristic", nullable = false)
     private Characteristics characteristic;
 
-    @Column(name = "number_sector")
+    @Column(name = "number_sector", nullable = false)
     private int numberSector;
 
-    public AnswersCharacteristics(UUID idAnswersCharacteristic, int numberSector){
-        this.idAnswersCharacteristic = idAnswersCharacteristic;
+    public AnswersCharacteristics(UUID idAnswersCharacteristic,
+                                  SurveySession surveySession,
+                                  Characteristics characteristic,
+                                  int numberSector){
+        this.idAnswersCharacteristic = Objects.requireNonNull(idAnswersCharacteristic, "idAnswersCharacteristic must be set explicitly");
+        this.surveySession = Objects.requireNonNull(surveySession, "surveySession must be set explicitly");
+        this.characteristic = Objects.requireNonNull(characteristic, "characteristic must be set explicitly");
         this.numberSector = numberSector;
     }
 
