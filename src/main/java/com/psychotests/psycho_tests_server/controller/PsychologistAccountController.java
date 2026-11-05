@@ -1,9 +1,10 @@
 package com.psychotests.psycho_tests_server.controller;
 
-import com.psychotests.psycho_tests_server.dto.request.LoginPsychologicalAccountRequestDto;
-import com.psychotests.psycho_tests_server.dto.request.RegisteringPsychologicalAccountRequestDto;
-import com.psychotests.psycho_tests_server.dto.response.LoginPsychologicalAccountResponseDto;
-import com.psychotests.psycho_tests_server.dto.response.RegisteringPsychologicalAccountResponseDto;
+import com.psychotests.psycho_tests_server.dto.request.authorization_dto.LoginPsychologicalAccountRequestDto;
+import com.psychotests.psycho_tests_server.dto.request.authorization_dto.RegisteringPsychologicalAccountRequestDto;
+import com.psychotests.psycho_tests_server.dto.response.authorization_dto.LoginPsychologicalAccountResponseDto;
+import com.psychotests.psycho_tests_server.dto.response.authorization_dto.RegisteringPsychologicalAccountResponseDto;
+import com.psychotests.psycho_tests_server.model.PsychologistAccount;
 import com.psychotests.psycho_tests_server.security.PsychologistUserDetails;
 import com.psychotests.psycho_tests_server.service.PsychologistAccountService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,7 +50,17 @@ public class PsychologistAccountController {
 
     }
 
-    private void authenticateUserInSession(com.psychotests.psycho_tests_server.model.PsychologistAccount account, HttpServletRequest request) {
+    private void authenticateUserInSession(PsychologistAccount account, HttpServletRequest request) {
+        /*
+         *  Session fixation: старую сессию (если есть) уничтожаем до входа,
+         *  чтобы подсунутая заранее cookie не пережила аутентификацию.
+         * */
+        HttpSession oldSession = request.getSession(false);
+        if(oldSession != null){
+            oldSession.invalidate();
+        }
+
+
         PsychologistUserDetails userDetails = new PsychologistUserDetails(account);
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

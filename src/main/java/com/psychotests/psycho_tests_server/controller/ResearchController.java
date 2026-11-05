@@ -3,11 +3,8 @@ package com.psychotests.psycho_tests_server.controller;
 import com.psychotests.psycho_tests_server.dto.request.create_researsh_dto.ResearchRequestCharacteristicsDtoPart3;
 import com.psychotests.psycho_tests_server.dto.request.create_researsh_dto.ResearchRequestInfoDtoPart1;
 import com.psychotests.psycho_tests_server.dto.request.create_researsh_dto.ResearchRequestSurveyDtoPart2;
-import com.psychotests.psycho_tests_server.dto.response.research_dto.ResearchCreatedResponseDto;
-import com.psychotests.psycho_tests_server.dto.response.research_dto.ResearchResponseInfoDto;
+import com.psychotests.psycho_tests_server.dto.response.research_dto.*;
 import com.psychotests.psycho_tests_server.dto.request.change_research_dto.ChangeStatusRequestDto;
-import com.psychotests.psycho_tests_server.dto.response.research_dto.SurveyCreatedResponseDto;
-import com.psychotests.psycho_tests_server.security.PsychologistUserDetails;
 import com.psychotests.psycho_tests_server.service.CreateResearchService;
 import com.psychotests.psycho_tests_server.service.FileStorageService;
 import com.psychotests.psycho_tests_server.service.ResearchService;
@@ -15,8 +12,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticatedPrincipal;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,26 +35,45 @@ public class ResearchController {
         return researchService.findAllResearches();
     }
 
-    @GetMapping("/research/{researchId}")
-    public ResearchResponseInfoDto getResearch(@PathVariable UUID researchId) {
-        return researchService.getResearch(researchId);
+    @GetMapping("/research/{idResearch}")
+    public ResearchResponseInfoDto getResearch(@PathVariable UUID idResearch) {
+        return researchService.getResearch(idResearch);
     }
 
     // ---------- Смена статуса и удаление ----------
 
-    @PatchMapping("/research/{researchId}/status")
-    public ResponseEntity<Void> changeStatus(
-            @PathVariable UUID researchId,
+    @PatchMapping("/research/{idResearch}/status")
+    public ResponseEntity<ResearchResponseInfoDto> changeStatus(
+            @PathVariable UUID idResearch,
             @Valid @RequestBody ChangeStatusRequestDto dto) {
-        researchService.changeStatus(researchId, dto.status());
+        return ResponseEntity.ok(researchService.changeStatus(idResearch, dto.status()));
+    }
+
+
+
+    @DeleteMapping("/research/{idResearch}")
+    public ResponseEntity<Void> deleteResearch(@PathVariable UUID idResearch) {
+        researchService.deleteResearch(idResearch);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/research/{researchId}")
-    public ResponseEntity<Void> deleteResearch(@PathVariable UUID researchId) {
-        researchService.deleteResearch(researchId);
+    @PatchMapping("/research/{idResearch}")
+    public ResponseEntity<Void> updateInfo(
+            @PathVariable UUID idResearch,
+            @Valid @RequestBody ResearchRequestInfoDtoPart1 dto) {
+        researchService.updateResearchInfo(idResearch, dto); // внутри — проверка статуса DRAFT/NEW
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/survey/{idSurvey}")
+    public ResponseEntity<ResearchResponseInfoDto> updateSurvey(
+            @PathVariable UUID idSurvey,
+            @Valid @RequestBody ResearchRequestSurveyDtoPart2 dto) {
+        return ResponseEntity.ok(createResearchService.updateSurvey(idSurvey, dto));
+    }
+
+
+
 
     // ---------- Мастер создания (Part1–Part5) ----------
 
@@ -88,22 +102,50 @@ public class ResearchController {
 
     @PostMapping("/items")
     public ResponseEntity<Void> addItems(
-            @RequestParam("surveyId") UUID surveyId,
+            @RequestParam("idSurvey") UUID idSurvey,
             @RequestParam("files") List<MultipartFile> files) {
-        List<String> paths = fileStorageService.saveResearchImages(surveyId, files);
-        createResearchService.addItems(surveyId, paths);
+        List<String> paths = fileStorageService.saveResearchImages(idSurvey, files);
+        createResearchService.addItems(idSurvey, paths);
         return ResponseEntity.noContent().build();
     }
 
+    /** «Запустить снова» на остановленном исследовании: открывает новую
+     *  волну (Run) в том же research без возврата в NEW. */
+    @PostMapping("/research/{idResearch}/restart")
+    public ResponseEntity<ResearchResponseInfoDto> restart(
+            @PathVariable UUID idResearch) {
+        return ResponseEntity.ok(researchService.restartResearch(idResearch));
+    }
+
+
     @PostMapping("/items-sub")
     public ResponseEntity<ResearchResponseInfoDto> addItemSub(
-            @RequestParam("surveyId") UUID surveyId,
-            @RequestParam("files") List<MultipartFile> files) {
+            @RequestParam("idSurvey") UUID idSurvey,
+            @RequestParam(value = "files", required = false) List<MultipartFile> files) {
 
-        if (files == null || files.isEmpty()) {
-            throw new IllegalArgumentException("Не переданы файлы");
-        }
-        List<String> paths = fileStorageService.saveResearchImages(surveyId, files);
-        return ResponseEntity.ok(createResearchService.addItemSub(surveyId, paths));
+        List<String> paths = (files == null || files.isEmpty())
+                ? List.of()
+                : fileStorageService.saveResearchImages(idSurvey, files);
+        return ResponseEntity.ok(createResearchService.addItemSub(idSurvey, paths));
     }
+
+
+    @GetMapping("/{idResearch}/runs/{idRun}/progress")
+    public RunProgressResponseDto getRunProgress(@PathVariable UUID idResearch,
+                                                 @PathVariable UUID idRun) {
+        return researchService.getRunProgress(idResearch, idRun);
+    }
+
+    @GetMapping("/progress")
+    public List<ResearchProgressResponseDto> getProgressAll() {
+        return researchService.getProgressAll();
+    }
+
+    /** Список волн (запусков) исследования — для селектора в отчёте. */
+    @GetMapping("/research/{idResearch}/runs")
+    public List<RunListItemDto> getRuns(@PathVariable UUID idResearch) {
+        return researchService.findRuns(idResearch);
+    }
+
+
 }

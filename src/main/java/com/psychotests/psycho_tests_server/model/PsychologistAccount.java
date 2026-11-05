@@ -5,11 +5,15 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 //Класс - личный кабинет психолога
 @Entity
-@Table(name = "psychologist_account")
+@Table(name = "psychologist_account", uniqueConstraints = @UniqueConstraint(
+        name = "uk_psychologist_email",
+        columnNames = "email_psychologist"
+))
 @NoArgsConstructor
 @Getter
 @Setter
@@ -19,7 +23,7 @@ public class PsychologistAccount {
     @Id
     @Setter(AccessLevel.NONE)
     @EqualsAndHashCode.Include
-    @Column(name = "id_psychologist_account")
+    @Column(name = "id_psychologist_account", nullable = false, updatable = false)
     private UUID idPsychologistAccount;
 
     @Column(name = "name_psychologist", length = 20, nullable = false)
@@ -28,7 +32,7 @@ public class PsychologistAccount {
     @Column(name = "lastname_psychologist", length = 50, nullable = false)
     private String lastnamePsychologist;
 
-    @Column(name = "password_psychologist", nullable = false)
+    @Column(name = "password_psychologist", nullable = false, length = 60)
     private String passwordPsychologist;
 
     @Column(name = "email_psychologist", length = 100, nullable = false)
@@ -48,10 +52,11 @@ public class PsychologistAccount {
             String passwordPsychologist,
             String emailPsychologist
     ){
-        this.idPsychologistAccount = idPsychologistAccount;
-        this.namePsychologist = namePsychologist;
-        this.lastnamePsychologist = lastnamePsychologist;
-        this.passwordPsychologist = passwordPsychologist;
-        this.emailPsychologist = emailPsychologist;
+        this.idPsychologistAccount = Objects.requireNonNull(idPsychologistAccount, "id не может быть null");
+        this.namePsychologist = Objects.requireNonNull(namePsychologist, "имя не может быть null");
+        this.lastnamePsychologist = Objects.requireNonNull(lastnamePsychologist, "фамилия не может быть null");
+        this.passwordPsychologist = Objects.requireNonNull(passwordPsychologist, "пароль не может быть null");
+        this.emailPsychologist = Objects.requireNonNull(emailPsychologist, "email не может быть null");
     }
+
 }

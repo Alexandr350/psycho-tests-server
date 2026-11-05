@@ -14,10 +14,27 @@ public interface SurveyRepository extends JpaRepository<Survey, UUID> {
 
     @Query("""
         SELECT s FROM Survey s
-        WHERE s.IDSurvey = :id
+        WHERE s.idSurvey = :id
           AND s.research.psychologistAccount.idPsychologistAccount = :psychologistId
         """)
     Optional<Survey> findByIdAndResearchPsychologistAccountIdPsychologistAccount(
-            @Param("id") UUID id,
-            @Param("psychologistId") UUID psychologistId);
+            UUID id, UUID psychologistId);
+
+    /** Опрос по исследованию — для сборки резюма в DTO. */
+    @Query("""
+        SELECT s FROM Survey s
+        WHERE s.research.IDResearch = :idResearch
+          AND s.research.psychologistAccount.idPsychologistAccount = :psychologistId
+        """)
+    Optional<Survey> findByResearchIdResearchAndPsychologistId(UUID idResearch, UUID psychologistId);
+
+    /** Опрос по исследованию для публичного резолвера токена — без фильтра психолога. */
+    @Query("""
+        SELECT s FROM Survey s
+        WHERE s.research.IDResearch = :idResearch
+        """)
+    Optional<Survey> findByResearchIdResearch(UUID idResearch);
+
+
 }
+

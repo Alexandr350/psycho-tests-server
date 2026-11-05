@@ -14,6 +14,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.Objects;
 import java.util.UUID;
 
 //Класс исследования (личный кабинет)
@@ -26,7 +27,7 @@ import java.util.UUID;
 public class Research{
 
     @Id
-    @Column(name = "id_research")                             
+    @Column(name = "id_research")
     @Setter(AccessLevel.NONE)
     @EqualsAndHashCode.Include
     private UUID IDResearch;
@@ -41,8 +42,8 @@ public class Research{
     private String customerResearch;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status_research" , length = 10, nullable = false)
-    private ResearchStatus statusResearch;
+    @Column(name = "status_research" , length = 15, nullable = false)
+    private ResearchStatus statusResearch = ResearchStatus.DRAFT;
 
     @Column(name = "created_at_research", updatable = false, nullable = false)
     @CreationTimestamp
@@ -61,6 +62,9 @@ public class Research{
     @Column(name = "type_research", length = 10, nullable = false)
     private TypeResearch typeResearch;
 
+    @Column(name = "public_token", unique = true)
+    private String publicToken;
+
     @OneToMany(mappedBy = "research", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UniqueSurveyCode> uniqueSurveyCodes = new ArrayList<>();
 
@@ -69,19 +73,18 @@ public class Research{
     private PsychologistAccount psychologistAccount;
 
     public Research(
-        UUID IDResearch, 
-        String nameResearch, 
-        String descriptionResearch, 
-        String customerResearch,
-        TypeResearch typeResearch){
-            this.IDResearch = IDResearch;
-            this.nameResearch = nameResearch;
-            this.descriptionResearch = descriptionResearch;
-            this.customerResearch = customerResearch;
-            this.typeResearch = typeResearch;
-            this.statusResearch = ResearchStatus.DRAFT;
-
+            UUID IDResearch,
+            String nameResearch,
+            String descriptionResearch,
+            String customerResearch,
+            TypeResearch typeResearch){
+        this.IDResearch = Objects.requireNonNull(IDResearch, "idResearch must be set explicitly");
+        this.nameResearch = Objects.requireNonNull(nameResearch, "nameResearch must be set explicitly");
+        this.typeResearch = Objects.requireNonNull(typeResearch, "typeResearch must be set explicitly");
+        this.descriptionResearch = descriptionResearch;
+        this.customerResearch = customerResearch;
     }
+
 
     public void changeStatus(ResearchStatus newStatus) {
         if (!statusResearch.canTransitionTo(newStatus)) {
@@ -90,14 +93,50 @@ public class Research{
         }
         this.statusResearch = newStatus;
 
-        if (newStatus == ResearchStatus.RUNNING && startTimeResearch == null) {
-            this.startTimeResearch = LocalDateTime.now();
+        if (newStatus == ResearchStatus.RUNNING) {
+            if (startTimeResearch == null) {
+                this.startTimeResearch = LocalDateTime.now();
+            }
+            // токен создаётся при первом запуске и живёт до STOPPED:
+            // пауза/возобновление сохраняют ту же ссылку
+            if (this.publicToken == null) {
+                this.publicToken = UUID.randomUUID().toString().replace("-", "");
+            }
         }
 
-        if(newStatus == ResearchStatus.STOPPED){
-            this.finishTimeResearch = LocalDateTime.now();
+        if (newStatus == ResearchStatus.STOPPED) {
+            // ссылка отзывается насовсем: старый URL больше не отвечает,
+            // при перезапуске (если появится) сгенерируется новый токен
+            this.publicToken = null;
+            // момент завершения запуска фиксируется один раз и живёт в ARCHIVE:
+            // STOPPED → RUNNING запрещён, время не перезаписывается
+            if (this.finishTimeResearch == null) {
+                this.finishTimeResearch = LocalDateTime.now();
+            }
         }
     }
 
+    /**
+     * «Запустить снова» на остановленном исследовании: STOPPED → RUNNING
+     * с НОВЫМ токеном — рестарт открывает новую волну сбора, ссылки на
+     * старую уже отозваны (см. changeStatus/STOPPED). Из любого другого
+     * статуса — ошибка: прямой PATCH из STOPPED запрещён картой переходов.
+     */
+    public void restart() {
+        if (statusResearch != ResearchStatus.STOPPED) {
+            throw new IllegalStateException(
+                    "Перезапуск возможен только из STOPPED, текущий статус: " + statusResearch);
+        }
+        this.statusResearch = ResearchStatus.RUNNING;
+        // время первого запуска сохраняется: research «перезапускается»,
+        // а не запускается заново с нуля
+        if (this.startTimeResearch == null) { // теоретически недостижимо после RUNNING, защита на всякий случай
+            this.startTimeResearch = LocalDateTime.now();
+        }
+        // research снова жив: момент завершения сбрасывается, чтобы не
+        // противоречить статусу RUNNING (finish в будущем проставит STOPPED)
+        this.finishTimeResearch = null;
+        this.publicToken = UUID.randomUUID().toString().replace("-", "");
+    }
 
 }

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Тело POST /api/CPSKTest/submit/{surveyId} — все ответы респондента.
+ * Тело POST /api/CPSKTest/submit/{idSurvey} — все ответы респондента.
  */
 public record SurveyFlowSubmitRequestDto(
         @NotNull UUID idSession,

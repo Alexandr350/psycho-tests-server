@@ -25,10 +25,10 @@ public class ResearchAccessService {
                 .orElseThrow(() -> new ResearchNotFoundException("Исследование не найдено"));
     }
 
-    public Survey getOwnedSurvey(UUID surveyId) {
+    public Survey getOwnedSurvey(UUID idSurvey) {
         UUID currentId = psychologistProvider.getPsychologistAccount().getIdPsychologistAccount();
         return surveyRepository
-                .findByIdAndResearchPsychologistAccountIdPsychologistAccount(surveyId, currentId)
+                .findByIdAndResearchPsychologistAccountIdPsychologistAccount(idSurvey, currentId)
                 .orElseThrow(() -> new ResearchNotFoundException("Опрос не найден"));
     }
 }

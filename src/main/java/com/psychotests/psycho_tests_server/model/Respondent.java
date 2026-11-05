@@ -2,13 +2,11 @@ package com.psychotests.psycho_tests_server.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 //Класс респондентов
 @Entity
@@ -20,16 +18,16 @@ import lombok.Setter;
 public class Respondent {
 
     @Id
+    @Setter(AccessLevel.NONE)
     @EqualsAndHashCode.Include
-    @Column(name = "id_respondent")
-    private UUID IdRespondent;
+    @Column(name = "id_respondent", updatable = false)
+    private UUID idRespondent;
 
     @OneToMany(
             mappedBy = "respondent",
-            orphanRemoval = false,
             fetch = FetchType.LAZY
     )
-    private List<SurveySession> surveySession = new ArrayList<>();
+    private List<SurveySession> surveySessions = new ArrayList<>();
 
     @OneToMany(mappedBy = "respondent", fetch = FetchType.LAZY)
     private List<UniqueSurveyCode> surveyCodes = new ArrayList<>();
@@ -46,8 +44,8 @@ public class Respondent {
     @Column(name = "gender_respondent", length = 1)
     private String genderRespondent;
 
-    public Respondent(UUID IdRespondent){
-        this.IdRespondent = IdRespondent;
+    public Respondent(UUID idRespondent){
+        this.idRespondent = Objects.requireNonNull(idRespondent, "idRespondent must be set explicitly");
     }
 
     

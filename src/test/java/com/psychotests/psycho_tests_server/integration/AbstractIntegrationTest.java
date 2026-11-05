@@ -1,4 +1,5 @@
 package com.psychotests.psycho_tests_server.integration;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import com.psychotests.psycho_tests_server.dto.request.survey_answer_dto.*;
 import com.psychotests.psycho_tests_server.model.*;
@@ -19,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @SpringBootTest
@@ -31,6 +34,8 @@ public abstract class AbstractIntegrationTest {
     @Autowired protected ObjectMapper objectMapper;
     @Autowired protected PsychologistAccountRepository psychologistAccountRepository;
     @Autowired protected ResearchRepository researchRepository;
+    @Autowired protected SurveyRepository surveyRepository;
+    @Autowired protected CharacteristicsRepository characteristicsRepository;
 
 
     protected PsychologistAccount psychologistAccount;
@@ -65,15 +70,31 @@ public abstract class AbstractIntegrationTest {
     }
 
 
+    /** Создаёт исследование от лица психолога, возвращает idResearch. */
+    protected UUID createResearch() throws Exception {
+        String json = mockMvc.perform(
+                        post("/api/researchs/research").with(psychologist())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                        {"nameResearch":"Тест резюме","descriptionResearch":"Описание",
+                         "customerResearch":"кафедра","typeResearch":"CPSK"}"""))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+        return extractId(json, "idResearch");
+    }
 
-
-
-
-
-
-
-
-
+    /** Создаёт опрос для исследования, возвращает idSurvey. */
+    protected UUID createSurvey(UUID idResearch) throws Exception {
+        String json = mockMvc.perform(
+                        post("/api/researchs/survey").with(psychologist())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                        {"idResearch":"%s","titleSurvey":"Опрос","descriptionSurvey":"desc",
+                         "rulesSurvey":"rules"}""".formatted(idResearch)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+        return extractId(json, "idSurvey");
+    }
 
 
 

@@ -6,6 +6,9 @@ import lombok.*;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 //Класс - ответы респондента - ассоциации
 @Entity
 @Table(name = "answers_associations")
@@ -23,6 +26,7 @@ public class AnswersAssociations {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_survey_session", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private SurveySession surveySession;
 
     @Column(name = "answer", nullable = false, length = 500)
@@ -45,5 +49,4 @@ public class AnswersAssociations {
         this.numberSector = numberSector;
         this.associationOrder = associationOrder;
     }
-
 }

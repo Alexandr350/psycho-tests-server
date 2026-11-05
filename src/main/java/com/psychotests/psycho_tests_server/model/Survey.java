@@ -1,7 +1,8 @@
 package com.psychotests.psycho_tests_server.model;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
@@ -19,6 +20,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 //Класс опроса (Личный кабинет/Создание исследования)
 @Entity
 @Table(name = "survey")
@@ -27,22 +31,23 @@ import lombok.Setter;
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Survey {
-    
+
     @Id
-    @Column(name = "id_survey")
+    @Column(name = "id_survey", updatable = false)
     @Setter(AccessLevel.NONE)
     @EqualsAndHashCode.Include
-    private UUID IDSurvey;
-    
+    private UUID idSurvey;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "research_id_survey", unique = true, nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Research research;
 
     @OneToMany(
-        mappedBy = "survey",
-        cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-        fetch = FetchType.LAZY)
-    private List<SurveySession> sessionsSurvey = new ArrayList<>();
+            mappedBy = "survey",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.LAZY)
+    private List<SurveySession> surveySessions = new ArrayList<>();
 
     @OneToMany(
             mappedBy = "survey",
@@ -61,13 +66,12 @@ public class Survey {
     private List<Items> itemsSurvey = new ArrayList<>();
 
     @OneToMany(
-        mappedBy = "survey",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true,
-        fetch = FetchType.LAZY
+            mappedBy = "survey",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
     )
     private List<ItemsSub> itemsSubsSurvey = new ArrayList<>();
-
 
     @Column(name = "title_survey", length = 150, nullable = false)
     private String titleSurvey;
@@ -78,13 +82,11 @@ public class Survey {
     @Column(name = "rules_survey", length = 2000)
     private String rulesSurvey;
 
-    public Survey(UUID IDSurvey, String titleSurvey, String descriptionSurvey, String rulesSurvey){
-        this.IDSurvey = IDSurvey;
-        this.titleSurvey = titleSurvey;
+    public Survey(UUID idSurvey, String titleSurvey, String descriptionSurvey, String rulesSurvey){
+        this.idSurvey = Objects.requireNonNull(idSurvey, "idSurvey must be set explicitly");
+        this.titleSurvey = Objects.requireNonNull(titleSurvey, "titleSurvey must be set explicitly");
         this.descriptionSurvey = descriptionSurvey;
         this.rulesSurvey = rulesSurvey;
-
     }
 
 }
-

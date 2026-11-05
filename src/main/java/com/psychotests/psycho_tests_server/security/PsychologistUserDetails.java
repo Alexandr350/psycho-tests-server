@@ -23,7 +23,7 @@ public class PsychologistUserDetails implements UserDetails {
     }
 
     @Override
-    public @Nullable String getPassword() {
+    public String getPassword() {
         return psychologistAccount.getPasswordPsychologist();
     }
 

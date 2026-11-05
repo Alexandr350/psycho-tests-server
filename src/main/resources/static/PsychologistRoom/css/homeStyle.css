@@ -1,0 +1,232 @@
+/* ============================================================
+ * homeStyle.css — вью «Главная» кабинета психолога.
+ * ============================================================ */
+
+/* ---------- Hero-блок ---------- */
+.hero-card {
+    background: linear-gradient(120deg, var(--primary) 0%, #4a6741 90%);
+    color: #fff;
+    border-radius: 12px;
+    padding: 34px 30px;
+    margin-bottom: 22px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.hero-text h2 {
+    margin: 0 0 8px;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.hero-text p {
+    margin: 0 0 18px;
+    font-size: 15px;
+    opacity: .9;
+    max-width: 560px;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.hero-actions .btn-secondary {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.hero-actions .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* ---------- Сводка: четыре цифры ---------- */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.summary-card {
+    background: var(--card-bg);
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.summary-card .num {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1.1;
+}
+
+.summary-card .cap {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* ---------- Две колонки ---------- */
+.home-columns {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 22px;
+    align-items: start;
+}
+
+.home-col-main,
+.home-col-side {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ---------- Активность ---------- */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.activity-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px 6px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-radius: 6px;
+}
+
+.activity-row:last-child {
+    border-bottom: none;
+}
+
+.activity-row:hover {
+    background: var(--bg-light);
+}
+
+.activity-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.activity-name {
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.activity-status {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.activity-count {
+    font-size: 14px;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+/* ---------- Статьи ---------- */
+.articles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.article-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px;
+    background: #fafbfc;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+}
+
+.article-tag {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: #e8f4fd;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.article-title {
+    display: block;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-main);
+    margin-bottom: 4px;
+}
+
+.article-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* ---------- Подсказка дня ---------- */
+.tip-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-main);
+}
+
+/* ---------- Недавние исследования ---------- */
+.recent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.recent-row {
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.recent-row:hover {
+    background: var(--bg-light);
+    transform: translateX(3px);
+}
+
+.recent-all {
+    margin-top: 6px;
+    width: 100%;
+}
+
+/* ---------- Общее ---------- */
+.muted {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin: 4px 0;
+}
+
+@media (max-width: 1100px) {
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .home-columns {
+        grid-template-columns: 1fr;
+    }
+}

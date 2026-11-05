@@ -7,8 +7,6 @@ import com.psychotests.psycho_tests_server.dto.request.survey_answer_dto.SurveyF
 import com.psychotests.psycho_tests_server.enums.SurveySessionStatus;
 import com.psychotests.psycho_tests_server.model.SurveySession;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 
 import java.util.ArrayList;
@@ -22,8 +20,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+/**
+ * @SpringBootTest, @AutoConfigureMockMvc, @ActiveProfiles("test") и @Transactional
+ * наследуются от AbstractIntegrationTest — повторно не объявляются.
+ */
 class CPSKTestFlowTest extends AbstractCPSKFlowTest {
 
     /**
@@ -38,13 +38,12 @@ class CPSKTestFlowTest extends AbstractCPSKFlowTest {
      * данные анкеты сохранены в респонденте, а количество ответов по каждой
      * категории в точности совпадает с отправленным — без потерь и дублей.
      */
-
     @Test
     void fullFlow_getQuestionnaireSubmit_persistsAllAnswers() throws Exception {
         UUID sessionId = startSession();
         fillQuestionnaire(sessionId);
 
-        mockMvc.perform(post("/api/CPSKTest/submit/" + survey.getIDSurvey())
+        mockMvc.perform(post("/api/CPSKTest/submit/" + survey.getIdSurvey())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validRequest(sessionId))))
                 .andExpect(status().isCreated());
@@ -72,35 +71,8 @@ class CPSKTestFlowTest extends AbstractCPSKFlowTest {
      * «все секторы обязательны», легитимный сценарий частичного прохождения
      * ломается — а по бизнес-правилам CPSK он должен работать.
      */
-
-    @Test
-    void submit_fullAssociationsInAllSectors_returns201AndPersistsAll() throws Exception {
-        UUID sessionId = startSession();
-        fillQuestionnaire(sessionId);
-
-        mockMvc.perform(post("/api/CPSKTest/submit/" + survey.getIDSurvey())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validRequest(sessionId))))
-                .andExpect(status().isCreated());
-
-        SurveySession session = sessionRepository.findById(sessionId).orElseThrow();
-        assertEquals(SurveySessionStatus.COMPLETED, session.getStatusSurveySession());
-        assertEquals(40, session.getAnswersAssociations().size());
-    }
-
-    /**
-     * Что делает: респондент проходит опрос целиком — анкета, ответы на все
-     * характеристики, все item и itemsSub, и ВСЕ ассоциации: 8 секторов по 5 слов = 40.
-     * Что проверяет:
-     *    1. Сервер принимает максимальный пакет (201) — валидатор пропускает не только
-     *       частичные пакеты (см. тест submit_partialAssociations_...), но и полные.
-     *    2. Сессия закрывается: статус COMPLETED, проставлен finishTimeSession.
-     *    3. В базе сохранены ровно 40 ассоциаций (5 на каждый сектор) — без потерь,
-     *       дублей и без «добивания» пустых секторов заглушками.
-     * **/
     @Test
     void submit_partialAssociations_accepted() throws Exception {
-        // пустые секторы допустимы: пришло 2 слова в одном секторе — сохранилось 2
         UUID sessionId = startSession();
         fillQuestionnaire(sessionId);
 
@@ -108,7 +80,7 @@ class CPSKTestFlowTest extends AbstractCPSKFlowTest {
         assoc.add(new AssociationAnswerDto(2, "дерево"));
         assoc.add(new AssociationAnswerDto(2, "солнце"));
 
-        mockMvc.perform(post("/api/CPSKTest/submit/" + survey.getIDSurvey())
+        mockMvc.perform(post("/api/CPSKTest/submit/" + survey.getIdSurvey())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new SurveyFlowSubmitRequestDto(
                                 sessionId,
@@ -124,12 +96,43 @@ class CPSKTestFlowTest extends AbstractCPSKFlowTest {
         assertEquals(SurveySessionStatus.COMPLETED, session.getStatusSurveySession());
     }
 
-    // ---------- Негативные ----------
     /**
-     * Сектор 4 содержит 6 ассоциаций (лимит — 5). Сервер должен ответить 400
-     * с «Сектор 4» в сообщении и не сохранить ничего: 0 ассоциаций в базе,
+     * Полный пакет ассоциаций: 8 секторов по 5 слов = 40.
+     *
+     * Что проверяет:
+     *    1. Сервер принимает максимальный пакет (201) — валидатор пропускает не только
+     *       частичные пакеты (см. submit_partialAssociations_accepted), но и полные.
+     *    2. Сессия закрывается: статус COMPLETED, проставлен finishTimeSession.
+     *    3. В базе сохранены ровно 40 ассоциаций (5 на каждый сектор) — без потерь,
+     *       дублей и без «добивания» пустых секторов заглушками.
+     */
+    @Test
+    void submit_fullAssociationsInAllSectors_returns201AndPersistsAll() throws Exception {
+        UUID sessionId = startSession();
+        fillQuestionnaire(sessionId);
+
+        mockMvc.perform(post("/api/CPSKTest/submit/" + survey.getIdSurvey())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(validRequest(sessionId))))
+                .andExpect(status().isCreated());
+
+        SurveySession session = sessionRepository.findById(sessionId).orElseThrow();
+        assertEquals(SurveySessionStatus.COMPLETED, session.getStatusSurveySession());
+        assertNotNull(session.getFinishTimeSession());
+        assertEquals(40, session.getAnswersAssociations().size());
+    }
+
+    // ---------- Негативные ----------
+
+    /**
+     * Сектор 4 содержит 6 ассоциаций (лимит — 5). Остальные компоненты пакета —
+     * валидные (характеристики, item, itemsSub из фабрик), чтобы единственным
+     * нарушением был именно перебор в секторе: иначе 400 мог бы прийти по
+     * другой причине раньше, и тест про «Сектор 4» проверял бы не то.
+     *
+     * Сервер должен ответить 400 с «Сектор 4» в сообщении и не сохранить ничего:
      * сессия осталась IN_PROGRESS — валидация до записи, атомарность сабмита.
-     * **/
+     */
     @Test
     void submit_sixAssociationsInOneSector_returns400AndNothingPersisted() throws Exception {
         UUID sessionId = startSession();
@@ -143,29 +146,39 @@ class CPSKTestFlowTest extends AbstractCPSKFlowTest {
             }
         }
 
-        mockMvc.perform(post("/api/CPSKTest/submit/" + survey.getIDSurvey())
+        var request = new SurveyFlowSubmitRequestDto(
+                sessionId,
+                List.of(new CharacteristicAnswerDto(characteristicId(0), 3),
+                        new CharacteristicAnswerDto(characteristicId(1), 7)),
+                List.of(new ImageAnswerDto(itemId(), 5)),
+                List.of(new ImageAnswerDto(subItemId(), 2)),
+                assoc);
+
+        mockMvc.perform(post("/api/CPSKTest/submit/" + survey.getIdSurvey())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new SurveyFlowSubmitRequestDto(
-                                sessionId, List.of(), List.of(), List.of(), assoc))))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", containsString("Сектор 4")));
 
         SurveySession session = sessionRepository.findById(sessionId).orElseThrow();
         assertEquals(SurveySessionStatus.IN_PROGRESS, session.getStatusSurveySession());
-        assertEquals(0, session.getAnswersAssociations().size());  // ничего не записалось
+        assertEquals(0, session.getAnswersAssociations().size());   // ничего не записалось
+        assertEquals(0, session.getAnswersCharacteristics().size()); // и по остальным тоже
+        assertEquals(0, session.getAnswersItems().size());
+        assertEquals(0, session.getAnswersItemsSubs().size());
     }
 
     /**
      * Повторный сабмит по уже завершённой сессии (COMPLETED) должен получить
      * 409 Conflict — защита от двойной отправки и задвоения ответов в базе.
-     * **/
+     */
     @Test
     void submit_twice_returns409() throws Exception {
         UUID sessionId = startSession();
         fillQuestionnaire(sessionId);
         submitValidAnswers(sessionId);                            // первый — 201
 
-        mockMvc.perform(post("/api/CPSKTest/submit/" + survey.getIDSurvey())
+        mockMvc.perform(post("/api/CPSKTest/submit/" + survey.getIdSurvey())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validRequest(sessionId))))
                 .andExpect(status().isConflict());
@@ -173,16 +186,16 @@ class CPSKTestFlowTest extends AbstractCPSKFlowTest {
 
     /**
      * Ответ с чужим UUID характеристики (randomUUID, которого нет в опросе)
-     * при валидных item/itemsSub и полном пакете ассоциций должен получить 400:
+     * при валидных item/itemsSub и полном пакете ассоциаций должен получить 400:
      * requireFullCoverage сверяет присланные id с составом конкретного опроса,
      * защита от записи ответов по чужим сущностям.
-     * **/
+     */
     @Test
     void submit_foreignCharacteristicId_returns400() throws Exception {
         UUID sessionId = startSession();
         fillQuestionnaire(sessionId);
 
-        mockMvc.perform(post("/api/CPSKTest/submit/" + survey.getIDSurvey())
+        mockMvc.perform(post("/api/CPSKTest/submit/" + survey.getIdSurvey())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new SurveyFlowSubmitRequestDto(
                                 sessionId,
@@ -197,11 +210,11 @@ class CPSKTestFlowTest extends AbstractCPSKFlowTest {
      * Сабмит без заполненной анкеты (сессия в NOT_STARTED, у респондента нет
      * возраста и пола) должен получить 409: правильный порядок — анкета, потом ответы.
      * Гарантирует, что в исследовании не попадут респонденты без анкетных данных.
-     * **/
+     */
     @Test
     void submit_beforeQuestionnaire_returns409() throws Exception {
         UUID sessionId = startSession();                          // анкету не заполняли
-        mockMvc.perform(post("/api/CPSKTest/submit/" + survey.getIDSurvey())
+        mockMvc.perform(post("/api/CPSKTest/submit/" + survey.getIdSurvey())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validRequest(sessionId))))
                 .andExpect(status().isConflict());

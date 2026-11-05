@@ -29,5 +29,11 @@ public interface ResearchRepository extends JpaRepository<Research, UUID> {
     List<Research> findAllByPsychologistAccountIdPsychologistAccount(
             @Param("psychologistId") UUID psychologistId);
 
+    @Query("""
+    SELECT r FROM Research r
+    WHERE r.publicToken = :token
+    """)
+    Optional<Research> findByPublicToken(@Param("token") String token);
+
 
 }

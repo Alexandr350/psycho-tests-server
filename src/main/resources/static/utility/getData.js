@@ -1,6 +1,8 @@
-export async function getData(endpoint ,params = null) {
+import { redirectToAuth } from './authGuard.js';
 
-    try{
+export async function getData(endpoint, params = null) {
+
+    try {
         let url = formatUrl(endpoint, params);
 
         const response = await fetch(url, {
@@ -11,7 +13,11 @@ export async function getData(endpoint ,params = null) {
             }
         });
 
-        if(response.status === 401 || response.status === 403){
+        if (response.status === 401 || response.status === 403) {
+            // сессия на сервере мертва (перезапуск, таймаут) — на логин.
+            // Возврат объекта ниже нужен, чтобы вызывающий код не упал,
+            // пока страница выгружается.
+            redirectToAuth();
             return {
                 success: false,
                 reason: 'unauthorized',
@@ -19,12 +25,12 @@ export async function getData(endpoint ,params = null) {
             };
         }
 
-        if(response.status === 200){
+        if (response.status === 200) {
             let rawText;
-            try{
+            try {
                 rawText = await response.text();
-            }catch(e){
-                return{
+            } catch (e) {
+                return {
                     success: false,
                     reason: 'network_error',
                     message: 'Не удалось прочитать ответ сервера'
@@ -32,64 +38,58 @@ export async function getData(endpoint ,params = null) {
             }
 
             let responseData;
-            try{
+            try {
                 responseData = JSON.parse(rawText);
-            }catch{
-                responseData = rawText;
+            } catch {
+                return {
+                    success: false,
+                    reason: 'invalid_response',
+                    message: 'Сервер вернул ответ не в формате JSON.'
+                };
             }
-            return{
+            return {
                 success: true,
                 data: responseData
             };
         }
 
-        return{
+        return {
             success: false,
             reason: `server_error_${response.status}`,
-            message: `Сервер вернул ошибку со статусом ${response.status}.`        
+            message: `Сервер вернул ошибку со статусом ${response.status}.`
         };
-    }catch(err){
+    } catch (err) {
         console.error('Сетевая ошибка при получении данных:', err);
-        return{
+        return {
             success: false,
             reason: 'network_error',
             message: 'Не удалось загрузить данные. Проверьте интернет-соединение.'
 
         };
     }
-    
+
 }
 
 
 // Про запас
-function formatUrl(endpoint ,params = null){
+function formatUrl(endpoint, params = null) {
 
-    if(!params || Object.keys(params).length === 0){
+    if (!params || Object.keys(params).length === 0) {
         return endpoint;
     }
 
     const searchParams = new URLSearchParams();
-        
+
     Object.entries(params).forEach(([key, value]) => {
-        if(value !== undefined && value !== null){
+        if (value !== undefined && value !== null) {
             searchParams.append(key, value);
         }
     });
 
-    const queryString  = searchParams.toString();
-    if(endpoint.includes('?')){
+    const queryString = searchParams.toString();
+    if (endpoint.includes('?')) {
         return `${endpoint}&${queryString}`;
     }
-    return `${endpoint}?${queryString}`;;
-}
+    return `${endpoint}?${queryString}`;
 
-
-export function escapeHtml(str) {
-  if (!str) return '';
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 }

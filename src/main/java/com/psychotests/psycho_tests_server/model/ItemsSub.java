@@ -8,8 +8,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-//Класс - ответы респондента - объекты
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+//Класс суб-объектов опроса
 @Entity
+@Table(name = "items_sub")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,23 +28,22 @@ public class ItemsSub {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_survey", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Survey survey;
 
-    @Column(name = "url_item_sub")
+    @Column(name = "url_item_sub", nullable = false)
     private String urlItemSub;
 
     @OneToMany(
             mappedBy = "itemsSub",
             cascade = {CascadeType.MERGE, CascadeType.PERSIST},
-            orphanRemoval = false,
             fetch = FetchType.LAZY
     )
-    private List<AnswersItemsSub> answersItemsSubList = new ArrayList<>();
+    private List<AnswersItemsSubs> answersItemsSubList = new ArrayList<>();
 
     public ItemsSub(UUID idItemSub, Survey survey, String urlItemSub) {
         this.idItemSub = Objects.requireNonNull(idItemSub, "idItemSub must be set explicitly");
         this.survey = Objects.requireNonNull(survey, "survey must be set explicitly");
         this.urlItemSub = Objects.requireNonNull(urlItemSub, "urlItemSub must be set explicitly");
     }
-
 }

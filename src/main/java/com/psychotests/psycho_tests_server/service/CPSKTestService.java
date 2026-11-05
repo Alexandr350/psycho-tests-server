@@ -2,6 +2,7 @@ package com.psychotests.psycho_tests_server.service;
 
 import com.psychotests.psycho_tests_server.dto.request.survey_answer_dto.*;
 import com.psychotests.psycho_tests_server.dto.response.survey_answer_dto.*;
+import com.psychotests.psycho_tests_server.enums.ResearchStatus;
 import com.psychotests.psycho_tests_server.enums.SurveySessionStatus;
 import com.psychotests.psycho_tests_server.model.*;
 import com.psychotests.psycho_tests_server.repository.*;
@@ -35,46 +36,73 @@ public class CPSKTestService {
     private final CharacteristicsRepository characteristicsRepository;
     private final ItemsRepository itemsRepository;
     private final ItemsSubRepository itemsSubRepository;
-
+    private final RunRepository runRepository;
 
 
     @Transactional
-    public SurveyFlowStartResponseDto createSession(UUID surveyId, UUID codeId) {
-        Survey survey = surveyRepository.findById(surveyId)
+    public SurveyFlowStartResponseDto createSession(UUID idSurvey, UUID codeId) {
+        Survey survey = surveyRepository.findById(idSurvey)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Опрос не найден"));
+        Research research = survey.getResearch();
+        if (research.getStatusResearch() != ResearchStatus.RUNNING) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Опрос недоступен");
+        }
 
-        Respondent respondent;
+        // активный запуск: по нему изолируются волны ответов
+        Run run = runRepository.findOpenRun(research.getIDResearch())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Опрос недоступен"));
+
+        // respondent присваивается ровно один раз — иначе лямбда
+        // в orElseGet не соберётся (не effectively final)
+        final Respondent respondent;
         if (codeId != null) {
             UniqueSurveyCode code = uniqueSurveyCodeRepository.findById(codeId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Код не найден"));
-            if (!code.getResearch().equals(survey.getResearch())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Код не относится к этому исследованию");
+
+            // Код обязан относиться к текущему запуску. У исторических кодов
+            // run может быть null (колонка id_run nullable) — такие коды
+            // не относятся ни к какому запуску: отвечаем 403, а не NPE.
+            // Проверка на null первой — короткое замыкание защищает
+            // от разыменования в правой части ||.
+            if (code.getRun() == null || !run.getIdRun().equals(code.getRun().getIdRun())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Код не относится к этому запуску");
             }
-            respondent = code.getRespondent();
-            if (respondent == null) {
-                respondent = new Respondent(UUID.randomUUID());
-                code.setRespondent(respondent);
+
+            Respondent assigned = code.getRespondent();
+            if (assigned == null) {
+                assigned = new Respondent(UUID.randomUUID());
+                code.setRespondent(assigned);
             }
+            respondent = assigned;
         } else {
             respondent = new Respondent(UUID.randomUUID());
         }
         respondentRepository.save(respondent);
 
-
-        SurveySession session = new SurveySession(UUID.randomUUID());
-        session.setSurvey(survey);
-        session.setRespondent(respondent);
-        session.setStatusSurveySession(SurveySessionStatus.NOT_STARTED);
-        surveySessionRepository.save(session);
-        return new SurveyFlowStartResponseDto(session.getIDSurveySession());
+        SurveySession session = surveySessionRepository
+                .findByRunIdRunAndRespondentIdRespondent(run.getIdRun(), respondent.getIdRespondent())
+                .orElseGet(() -> {
+                    SurveySession created = new SurveySession(UUID.randomUUID());
+                    created.setSurvey(survey);
+                    created.setRun(run);
+                    created.setRespondent(respondent);
+                    created.setStatusSurveySession(SurveySessionStatus.NOT_STARTED);
+                    return surveySessionRepository.save(created);
+                });
+        return new SurveyFlowStartResponseDto(session.getIdSurveySession());
     }
 
+
+
     @Transactional
-    public SurveyFlowResponseDto startFlow(UUID surveyId, SurveyFlowQuestionnaireRequestDto requestDto) {
-        SurveySession session = requireSession(requestDto.idSession(), surveyId);
+    public SurveyFlowResponseDto startFlow(UUID idSurvey, SurveyFlowQuestionnaireRequestDto requestDto) {
+        SurveySession session = requireSession(requestDto.idSession(), idSurvey);
 
         if (session.getStatusSurveySession() != SurveySessionStatus.NOT_STARTED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Сессия уже начата");
+        }
+        if (session.getSurvey().getResearch().getStatusResearch() != ResearchStatus.RUNNING) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Опрос недоступен");
         }
 
         session.getRespondent().setAgeRespondent(requestDto.age());
@@ -85,9 +113,9 @@ public class CPSKTestService {
 
 
     @Transactional
-    public void submit(UUID surveyId, SurveyFlowSubmitRequestDto requestDto) {
+    public void submit(UUID idSurvey, SurveyFlowSubmitRequestDto requestDto) {
 
-        SurveySession session = requireSession(requestDto.idSession(), surveyId);
+        SurveySession session = requireSession(requestDto.idSession(), idSurvey);
 
         if (session.getStatusSurveySession() != SurveySessionStatus.IN_PROGRESS) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Результаты уже отправлены или сессия не начата");
@@ -105,6 +133,15 @@ public class CPSKTestService {
     }
 
     private void validateAssociations(List<AssociationAnswerDto> dtos) {
+        // пустые ассоциации отсекаем первыми: null/из одних пробелов —
+        // трим при сборке даст пустую строку, и она бы уехала в сохранение
+        for (AssociationAnswerDto dto : dtos) {
+            if (dto.text() == null || dto.text().trim().isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Ассоциация в секторе " + dto.numberSector() + " пустая");
+            }
+        }
+
         dtos.stream()
                 .collect(Collectors.groupingBy(AssociationAnswerDto::numberSector, Collectors.counting()))
                 .entrySet().stream()
@@ -116,6 +153,7 @@ public class CPSKTestService {
                                     + " ассоциаций, максимум " + MAX_ASSOCIATIONS_PER_SECTOR);
                 });
     }
+
 
 
     private void saveCharacteristicAnswers(SurveySession session, Survey survey,
@@ -156,25 +194,12 @@ public class CPSKTestService {
         requireFullCoverage(allowed.keySet(), sentIds, "суб-изображениям");
 
         session.getAnswersItemsSubs().addAll(dtos.stream()
-                .map(dto -> new AnswersItemsSub(
+                .map(dto -> new AnswersItemsSubs(
                         UUID.randomUUID(), session, allowed.get(dto.idImage()), dto.numberSector()))
                 .toList());
     }
 
     private void saveAssociationsAnswers(SurveySession session, List<AssociationAnswerDto> dtos) {
-        Map<Integer, List<AssociationAnswerDto>> bySector = dtos.stream()
-                .collect(Collectors.groupingBy(AssociationAnswerDto::numberSector));
-
-        bySector.forEach((sector, texts) -> {
-            if (texts.size() > MAX_ASSOCIATIONS_PER_SECTOR) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Сектор " + sector + ": получено " + texts.size()
-                                + " ассоциаций, максимум " + MAX_ASSOCIATIONS_PER_SECTOR);
-            }
-        });
-
-        if (dtos.isEmpty()) return;
-
         session.getAnswersAssociations().addAll(
                 IntStream.range(0, dtos.size())
                         .mapToObj(idx -> new AnswersAssociations(
@@ -185,6 +210,7 @@ public class CPSKTestService {
                                 idx))
                         .toList());
     }
+
 
     private SurveyFlowResponseDto buildSurveyFlowResponseDto(Survey survey) {
         List<TextQuestionResponseDto> characteristics = characteristicsRepository.findBySurvey(survey)
@@ -207,10 +233,10 @@ public class CPSKTestService {
     }
 
 
-    private SurveySession requireSession(UUID sessionId, UUID surveyId) {
+    private SurveySession requireSession(UUID sessionId, UUID idSurvey) {
         SurveySession session = surveySessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Сессия не найдена"));
-        if (!session.getSurvey().getIDSurvey().equals(surveyId)) {
+        if (!session.getSurvey().getIdSurvey().equals(idSurvey)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Сессия не относится к этому опросу");
         }
         return session;

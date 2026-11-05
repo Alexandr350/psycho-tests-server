@@ -6,6 +6,9 @@ import lombok.*;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 @Entity
 @Table(name = "answers_items")
 @Getter
@@ -22,10 +25,12 @@ public class AnswersItems {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_survey_session", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private SurveySession surveySession;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_item", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Items item;
 
     @Column(name = "number_sector", nullable = false)
@@ -40,6 +45,4 @@ public class AnswersItems {
         this.item = Objects.requireNonNull(item, "item must be set explicitly");
         this.numberSector = numberSector;
     }
-
-
 }

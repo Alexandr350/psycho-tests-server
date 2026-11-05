@@ -13,6 +13,37 @@ body {
     background-color: #f5f5f5;
 }
 
+.sector-color-chip {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px #ccc;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+
+
+/* Поле ввода ассоциации — в той же стилистике, что анкета */
+.association-input {
+    width: 100%;
+    max-width: 500px;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    font-size: 1.1rem;
+    outline: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.association-input:focus {
+    border-color: #007bff;
+    background-color: #ffffff;
+}
+
 /* Двухколоночный макет */
 .main-container {
     display: flex;

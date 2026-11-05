@@ -22,9 +22,9 @@ public class FileStorageService {
     @Value("${upload.path}")
     private String baseUploadPath;
 
-    public List<String> saveResearchImages(UUID surveyId, List<MultipartFile> files) {
+    public List<String> saveResearchImages(UUID idSurvey, List<MultipartFile> files) {
         List<String> savedPaths = new ArrayList<>();
-        Path dir = Paths.get(baseUploadPath, "uploads", "ResearchPage", "image", surveyId.toString());
+        Path dir = Paths.get(baseUploadPath, "uploads", "ResearchPage", "image", idSurvey.toString());
         try {
             Files.createDirectories(dir);
         } catch (IOException e) {
@@ -46,20 +46,20 @@ public class FileStorageService {
             } catch (IOException e) {
                 throw new RuntimeException("Ошибка при сохранении файла: " + originalFilename, e);
             }
-            savedPaths.add("/uploads/ResearchPage/image/" + surveyId + "/" + fileName);
+            savedPaths.add("/uploads/ResearchPage/image/" + idSurvey + "/" + fileName);
         }
         return savedPaths;
     }
 
 
-    public void deleteSurveyImages(UUID surveyId){
-        Path dirPath = Paths.get(baseUploadPath, "uploads", "ResearchPage", "image", surveyId.toString());
+    public void deleteSurveyImages(UUID idSurvey){
+        Path dirPath = Paths.get(baseUploadPath, "uploads", "ResearchPage", "image", idSurvey.toString());
 
         try (Stream<Path> walk = Files.walk(dirPath)) {
             walk.sorted(Comparator.reverseOrder())
                     .forEach(this::deleteQuietly);
         }catch (IOException e){
-            log.warn("Не удалось удалить файлы опроса {}: {}", surveyId, e.getMessage());
+            log.warn("Не удалось удалить файлы опроса {}: {}", idSurvey, e.getMessage());
         }
     }
 

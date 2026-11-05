@@ -6,6 +6,9 @@ import lombok.*;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 //Класс - ответы респондента - характеристики
 @Entity
 @Table(name = "answers_characteristics")
@@ -23,10 +26,12 @@ public class AnswersCharacteristics {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_survey_session", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private SurveySession surveySession;
 
-    @ManyToOne(fetch =  FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_characteristic", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Characteristics characteristic;
 
     @Column(name = "number_sector", nullable = false)
@@ -41,5 +46,4 @@ public class AnswersCharacteristics {
         this.characteristic = Objects.requireNonNull(characteristic, "characteristic must be set explicitly");
         this.numberSector = numberSector;
     }
-
 }

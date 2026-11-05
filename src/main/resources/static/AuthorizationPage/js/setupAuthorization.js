@@ -56,7 +56,7 @@ export function setupAuthorizarion(elAuthSet, serviciesAuth) {
                 const userDto = result.data;
                 localStorage.setItem('currentPsychlogist', JSON.stringify(userDto));
                 serviciesAuth.login.clearFeildInputs();
-                window.location.href ='/ResearchPage/html/researchPage.html';
+                window.location.href = '/PsychologistRoom/html/PsychologistRoom.html';
             }else{
                 if(result.reason === 'validation_failed'){
                     console.warn(result.errors);
@@ -86,7 +86,7 @@ export function setupAuthorizarion(elAuthSet, serviciesAuth) {
                 const userDto = result.data;
                 localStorage.setItem('currentPsychlogist', JSON.stringify(userDto));
                 serviciesAuth.registration.clearFeildInputs();
-                window.location.href = '/ResearchPage/html/researchPage.html';
+                window.location.href = '/PsychologistRoom/html/PsychologistRoom.html';
             } else {
                 if (result.reason === 'validation_failed') {
                     console.warn(result.errors);

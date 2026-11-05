@@ -5,7 +5,32 @@ import { serviceLogin } from "./login.js";
 import { setupAuthorizarion } from "./setupAuthorization.js";
 
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // Уже вошедший психолог не должен видеть форму логина:
+  // проверяем живую сессию и возвращаем в кабинет.
+  const saved = localStorage.getItem('currentPsychlogist');
+  if (saved) {
+    // Проверка сырым fetch, а не getData: getData при 401 сам
+    // дернет redirectToAuth, а нам нужен тихий ответ без редиректа.
+    try {
+      const probe = await fetch('/api/researchs/all', { credentials: 'include' });
+
+      if (probe.ok) {
+        window.location.replace(
+          sessionStorage.getItem('lastCabinetPage') ||
+          '/PsychologistRoom/html/PsychologistRoom.html'
+        );
+        return; // формы не инициализируем
+      }
+      if (probe.status === 401 || probe.status === 403) {
+        localStorage.removeItem('currentPsychlogist'); // сессия мертва — чистим
+      }
+      // любой другой статус — показываем форму, ничего не трогаем
+    } catch (e) {
+      // сервер недоступен — остаёмся на форме, ничего не чистим
+    }
+  }
 
   const btnRegistration = document.getElementById('btn-registration');
   const btnLogin = document.getElementById('btn-login');
@@ -38,8 +63,3 @@ document.addEventListener('DOMContentLoaded', () => {
   setupAuthorizarion(elAuthSet, serviciesAuth);
 
 });
-
-
-
-
-

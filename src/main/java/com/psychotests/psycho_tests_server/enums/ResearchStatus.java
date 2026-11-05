@@ -23,5 +23,9 @@ public enum ResearchStatus {
     public  boolean canBeDeleted(){
         return this == DRAFT || this == NEW || this == STOPPED || this == ARCHIVE;
     }
+
+    public boolean canBeEdited(){
+        return this == DRAFT || this == NEW;
+    }
 }
 

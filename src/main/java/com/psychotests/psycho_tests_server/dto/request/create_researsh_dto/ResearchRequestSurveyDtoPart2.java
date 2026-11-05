@@ -6,9 +6,14 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public record ResearchRequestSurveyDtoPart2(
-        @NotNull
+        @NotNull(message = "Нужен id исследования, к которому относится опрос")
         UUID idResearch,
+
+        @NotBlank(message = "Название опроса не может быть пустым")
         String titleSurvey,
-        String descriptionSurvey,
+
+        String descriptionSurvey,   // опционально: на фронте поле не required
+
+        @NotBlank(message = "Правила опроса не могут быть пустыми")
         String rulesSurvey
 ) {}

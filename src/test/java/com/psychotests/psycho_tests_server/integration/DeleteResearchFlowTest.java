@@ -108,6 +108,8 @@ class DeleteResearchFlowTest extends AbstractIntegrationTest {
      * Создаёт исследование и доводит его до указанного статуса.
      * DRAFT — сразу после создания; NEW — после заполнения всех частей;
      * RUNNING — через PATCH; STOPPED — через PATCH после RUNNING.
+     * PATCH статуса возвращает 200 с обновлённым research в теле,
+     * поэтому статус и publicToken проверяются по телу ответа.
      */
     private UUID createResearchWithStatus(ResearchStatus target) throws Exception {
         // Part 1: создание исследования (статус DRAFT)
@@ -134,27 +136,27 @@ class DeleteResearchFlowTest extends AbstractIntegrationTest {
                                 .content(surveyRequestJson))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
-        UUID surveyId = extractId(surveyJson, "surveyId");
+        UUID idSurvey = extractId(surveyJson, "idSurvey");
 
         // Part 3: характеристики
         mockMvc.perform(post("/api/researchs/characteristics").with(psychologist())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"idSurvey":"%s","characteristics":"тревога, внимание"}"""
-                                .formatted(surveyId)))
+                                .formatted(idSurvey)))
                 .andExpect(status().isNoContent());
 
         // Part 4: картинки
         mockMvc.perform(multipart("/api/researchs/items")
                         .file(jpg("img1.jpg")).file(jpg("img2.jpg"))
-                        .param("surveyId", surveyId.toString())
+                        .param("idSurvey", idSurvey.toString())
                         .with(psychologist()))
                 .andExpect(status().isNoContent());
 
         // Part 5: дополнительные элементы → авто-переход в NEW
         mockMvc.perform(multipart("/api/researchs/items-sub")
                         .file(jpg("sub1.jpg"))
-                        .param("surveyId", surveyId.toString())
+                        .param("idSurvey", idSurvey.toString())
                         .with(psychologist()))
                 .andExpect(status().isOk());
 
@@ -164,26 +166,29 @@ class DeleteResearchFlowTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.researchStatus").value("NEW"));
 
         if (target == ResearchStatus.RUNNING || target == ResearchStatus.STOPPED) {
-            // NEW → RUNNING
+            // NEW → RUNNING: контроллер возвращает обновлённый research,
+            // токен генерируется на первом RUNNING
             mockMvc.perform(patch("/api/researchs/research/" + idResearch + "/status")
                             .with(psychologist())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"idResearch\":\"%s\",\"status\":\"RUNNING\"}"
                                     .formatted(idResearch)))
-                    .andExpect(status().isNoContent());
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.researchStatus").value("RUNNING"))
+                    .andExpect(jsonPath("$.publicToken").isNotEmpty());
 
             if (target == ResearchStatus.STOPPED) {
-                // RUNNING → STOPPED
+                // RUNNING → STOPPED: токен отзывается — changeStatus(STOPPED) обнуляет его
                 mockMvc.perform(patch("/api/researchs/research/" + idResearch + "/status")
                                 .with(psychologist())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\"idResearch\":\"%s\",\"status\":\"STOPPED\"}"
                                         .formatted(idResearch)))
-                        .andExpect(status().isNoContent());
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.researchStatus").value("STOPPED"))
+                        .andExpect(jsonPath("$.publicToken").doesNotExist());
             }
         }
         return idResearch;
     }
-
-
 }

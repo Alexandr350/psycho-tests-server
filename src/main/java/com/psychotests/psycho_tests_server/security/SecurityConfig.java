@@ -28,10 +28,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
+        // TODO: заменить на реальный origin фронтенда перед деплоем
         configuration.setAllowedOrigins(List.of("http://localhost:8080"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"));
-
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -43,10 +43,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                // TODO: включить перед продом — с активными cookie-сессиями CSRF обязателен
                 .csrf(AbstractHttpConfigurer::disable) // на время разработки
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/public/**", "/uploads/**").permitAll()
                         .requestMatchers("/AuthorizationPage/**").permitAll()
                         .requestMatchers("/api/psychologists/register", "/api/psychologists/login").permitAll()
                         .requestMatchers("/api/CPSKTest/**").permitAll()
