@@ -19,7 +19,7 @@ services:
       retries: 5
 
   app:
-    build: .       # путь к папке с Dockerfile — поправьте, если структура другая
+    image: ghcr.io/alexandr350/psycho-tests-server:latest
     container_name: psycho-tests-server
     restart: unless-stopped
     environment:
@@ -31,6 +31,15 @@ services:
         condition: service_healthy
     ports:
       - "8080:8080"
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/sanches/.docker/config.json:/config.json:ro
+    command: --interval 300 --cleanup
+    restart: unless-stopped
 
 volumes:
   db-data:
